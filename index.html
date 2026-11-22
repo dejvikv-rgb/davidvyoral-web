@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>David Vyoral | Beach Volleyball Player Profile & Sponsorship</title>
+<!DOCTYPE html>
+<html lang="cs" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>David Vyoral | Beach Volleyball Player Profile & Sponsorship</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter & Space Grotesk -->
@@ -12,8 +18,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Three.js r128 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Google Model Viewer pro 3D avatar.glb -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -66,21 +72,13 @@
             box-shadow: 0 24px 50px -15px rgba(0, 0, 0, 0.75);
         }
 
-        /* 3D WebGL Canvas */
-        #three-hero-container {
+        /* 3D Model Viewer */
+        model-viewer {
             width: 100%;
             height: 100%;
-            touch-action: none;
-            cursor: grab;
-        }
-        #three-hero-container:active {
-            cursor: grabbing;
-        }
-        #three-hero-container canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            border-radius: 1rem;
+            background-color: transparent;
+            --poster-color: transparent;
+            outline: none;
         }
 
         /* Pevné SVG body pavučiny bez CSS transform scale (neposkakují) */
@@ -157,7 +155,7 @@
     <main class="relative z-10">
 
         <!-- ===================================================================== -->
-        <!-- 2. HERO & OBECNÝ PROFIL HRÁČE (MODULÁRNÍ ŠABLONA + 3D POSTAVA)        -->
+        <!-- 2. HERO & OBECNÝ PROFIL HRÁČE (MODULÁRNÍ ŠABLONA + 3D AVATAR.GLB)     -->
         <!-- ===================================================================== -->
         <section id="profil" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16 sm:pt-14 sm:pb-24">
             <div class="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center mb-10">
@@ -176,7 +174,7 @@
                         <span class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-cyanVolt text-xs font-semibold">Prague Beach Team</span>
                     </div>
 
-                    <!-- Jméno a čistý popis bez opakování stejných čísel -->
+                    <!-- Jméno a čistý popis -->
                     <div class="space-y-4">
                         <h1 class="font-display text-4xl sm:text-6xl font-bold tracking-tight text-white leading-[1.04]">
                             DAVID <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyanVolt via-sky-300 to-emeraldVolt">VYORAL</span>
@@ -186,7 +184,7 @@
                         </p>
                     </div>
 
-                    <!-- Živý Instagram Reach + tlačítko SYNC -->
+                    <!-- Živý Instagram Reach + tlačítko SYNC (napojeno na stats.json) -->
                     <div class="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-cyanVolt/25">
                         <div class="flex items-center gap-3.5">
                             <div class="w-11 h-11 rounded-xl bg-cyanVolt/15 border border-cyanVolt/30 flex items-center justify-center text-cyanVolt shrink-0">
@@ -224,14 +222,14 @@
                     </div>
                 </div>
 
-                <!-- PRAVÝ SLOUPEC: INTERAKTIVNÍ 3D MODEL POSTAVY HRÁČE (THREE.JS) -->
+                <!-- PRAVÝ SLOUPEC: INTERAKTIVNÍ 3D AVATAR HRÁČE (avatar.glb) -->
                 <div class="lg:col-span-6">
                     <div class="glass-panel-cyan rounded-3xl p-4 sm:p-5 relative overflow-hidden">
                         <!-- Horní lišta 3D modelu -->
                         <div class="flex items-center justify-between gap-2 mb-3">
                             <div class="flex items-center gap-2">
                                 <span class="px-2.5 py-1 rounded-lg bg-midnight/85 border border-cyanVolt/30 text-[11px] font-bold text-cyanVolt tracking-wider">
-                                    3D PLAYER MODEL • #1 CZE
+                                    3D PLAYER AVATAR • #1 CZE
                                 </span>
                             </div>
                             <span class="text-[11px] text-slate-400 hidden sm:inline">
@@ -239,20 +237,38 @@
                             </span>
                         </div>
 
-                        <!-- Plátno Three.js (3D postava beachvolejbalisty na písku se sítí a míčem) -->
-                        <div class="relative w-full h-[360px] sm:h-[420px] rounded-2xl bg-midnight/90 border border-white/10 overflow-hidden">
-                            <div id="three-hero-container"></div>
+                        <!-- Kontejner pro model-viewer (avatar.glb) -->
+                        <div class="relative w-full h-[380px] sm:h-[440px] rounded-2xl bg-gradient-to-b from-midnight/70 via-midnight/90 to-slate-900/95 border border-white/10 overflow-hidden">
+                            <!-- Jemná písková podstava pod 3D avatarem -->
+                            <div class="absolute bottom-12 left-1/2 -translate-x-1/2 w-56 h-12 rounded-full bg-cyanVolt/15 blur-xl pointer-events-none"></div>
 
-                            <!-- Přepínač póz přímo na spodním okraji 3D scény -->
+                            <model-viewer
+                                id="player-3d-avatar"
+                                src="avatar.glb"
+                                alt="3D avatar – David Vyoral"
+                                camera-controls
+                                auto-rotate
+                                auto-rotate-delay="1200"
+                                rotation-per-second="18deg"
+                                shadow-intensity="1.2"
+                                shadow-softness="0.8"
+                                exposure="1.05"
+                                camera-orbit="0deg 82deg 105%"
+                                min-camera-orbit="auto 35deg 65%"
+                                max-camera-orbit="auto 115deg 150%"
+                                interaction-prompt="none">
+                            </model-viewer>
+
+                            <!-- Přepínač úhlů kamery přímo na spodním okraji 3D scény -->
                             <div class="absolute bottom-3 inset-x-3 flex flex-wrap items-center justify-center gap-1.5 bg-midnight/85 backdrop-blur-md p-1.5 rounded-xl border border-white/15">
-                                <button onclick="setPlayerPose('stance')" id="pose-btn-stance" class="pose-btn px-3 py-1.5 rounded-lg text-[11px] font-bold bg-cyanVolt text-midnight transition-all">
-                                    Postoj polaře
+                                <button onclick="setAvatarView('full')" id="view-btn-full" class="view-btn px-3 py-1.5 rounded-lg text-[11px] font-bold bg-cyanVolt text-midnight transition-all">
+                                    Celá postava
                                 </button>
-                                <button onclick="setPlayerPose('dig')" id="pose-btn-dig" class="pose-btn px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-300 hover:text-white transition-all">
-                                    Zákrok v poli
+                                <button onclick="setAvatarView('jersey')" id="view-btn-jersey" class="view-btn px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-300 hover:text-white transition-all">
+                                    Detail dresu
                                 </button>
-                                <button onclick="setPlayerPose('attack')" id="pose-btn-attack" class="pose-btn px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-300 hover:text-white transition-all">
-                                    Výskok & Útok
+                                <button onclick="setAvatarView('side')" id="view-btn-side" class="view-btn px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-300 hover:text-white transition-all">
+                                    Pohled z boku
                                 </button>
                             </div>
                         </div>
@@ -529,7 +545,7 @@
                         </div>
                     </div>
 
-                    <!-- PRAVÝ SLOUPEC: PAVUČINA DOVEDNOSTÍ (SROVNÁNÍ ČISTĚ V ČR SCÉNĚ) -->
+                    <!-- PRAVÝ SLOUPEC: PAVUČINA DOVEDNOSTÍ -->
                     <div class="lg:col-span-6 glass-panel rounded-3xl p-6 sm:p-8 flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between text-[11px] text-slate-400 mb-3">
@@ -539,10 +555,8 @@
                                 <span class="text-emeraldVolt font-bold">OVR 84</span>
                             </div>
 
-                            <!-- Pevný SVG pavučinový graf: vrcholy mají pevná cx/cy bez transform scale -->
                             <div class="flex justify-center my-2">
                                 <svg viewBox="0 0 380 310" class="w-full max-w-[380px] overflow-visible">
-                                    <!-- Soustředné pětiúhelníky mřížky -->
                                     <g stroke="rgba(255,255,255,0.1)" fill="none" stroke-width="1">
                                         <polygon points="190,35 304,118 260,252 120,252 76,118" />
                                         <polygon points="190,65 275,127 243,228 137,228 105,127" />
@@ -555,21 +569,13 @@
                                         <line x1="190" y1="155" x2="76" y2="118" />
                                     </g>
 
-                                    <!-- Datový polygon:
-                                         0: Rychlost v poli (87) -> (190, 51)
-                                         1: Příjem podání (85) -> (287, 124)
-                                         2: Nahrávka (83) -> (248, 236)
-                                         3: Výskok & Útok (80) -> (134, 233)
-                                         4: IG Dosah (84) -> (94, 124) -->
                                     <polygon points="190,51 287,124 248,236 134,233 94,124"
                                              fill="rgba(6, 182, 212, 0.22)"
                                              stroke="#06B6D4"
                                              stroke-width="2.5" />
 
-                                    <!-- Vnější pulzní prstenec aktivního vrcholu (pevné cx/cy, žádné skákání) -->
                                     <circle id="radar-active-ring" cx="190" cy="51" r="13" fill="rgba(16, 185, 129, 0.2)" stroke="#10B981" stroke-width="1.5" pointer-events="none" />
 
-                                    <!-- Pevné interaktivní body (pouze změna poloměru r a barvy) -->
                                     <circle id="radar-dot-0" class="radar-node" cx="190" cy="51" r="7.5" fill="#10B981" stroke="#060B19" stroke-width="2"
                                             onmouseenter="selectAttribute(0)" onclick="selectAttribute(0)" />
                                     <circle id="radar-dot-1" class="radar-node" cx="287" cy="124" r="6.5" fill="#06B6D4" stroke="#060B19" stroke-width="2"
@@ -581,7 +587,6 @@
                                     <circle id="radar-dot-4" class="radar-node" cx="94" cy="124" r="6.5" fill="#06B6D4" stroke="#060B19" stroke-width="2"
                                             onmouseenter="selectAttribute(4)" onclick="selectAttribute(4)" />
 
-                                    <!-- Popisky vrcholů -->
                                     <text x="190" y="20" fill="#F8FAFC" font-size="11" font-weight="700" text-anchor="middle" class="cursor-pointer" onmouseenter="selectAttribute(0)" onclick="selectAttribute(0)">RYCHLOST V POLI (87)</text>
                                     <text x="312" y="118" fill="#CBD5E1" font-size="11" font-weight="600" text-anchor="start" class="cursor-pointer" onmouseenter="selectAttribute(1)" onclick="selectAttribute(1)">PŘÍJEM PODÁNÍ (85)</text>
                                     <text x="266" y="272" fill="#CBD5E1" font-size="11" font-weight="600" text-anchor="start" class="cursor-pointer" onmouseenter="selectAttribute(2)" onclick="selectAttribute(2)">NAHRÁVKA (83)</text>
@@ -590,7 +595,6 @@
                                 </svg>
                             </div>
 
-                            <!-- Tlačítka pro výběr atributu -->
                             <div class="flex flex-wrap justify-center gap-1.5 mt-1 mb-5">
                                 <button onclick="selectAttribute(0)" id="attr-btn-0" class="attr-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-cyanVolt text-midnight transition-colors">Rychlost v poli</button>
                                 <button onclick="selectAttribute(1)" id="attr-btn-1" class="attr-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 text-slate-300 hover:bg-white/10 transition-colors">Příjem podání</button>
@@ -600,7 +604,6 @@
                             </div>
                         </div>
 
-                        <!-- Detail vybrané dovednosti -->
                         <div class="bg-midnight/90 rounded-2xl p-5 border border-white/10 space-y-2">
                             <div class="flex items-center justify-between">
                                 <span id="attr-badge" class="text-[11px] font-bold uppercase tracking-wider text-emeraldVolt">ČR SCÉNA • 87 / 100</span>
@@ -835,7 +838,6 @@
                     </p>
 
                     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 text-left">
-                        <!-- E-mail s kopírováním -->
                         <button onclick="copyEmail()" class="glass-panel hover:border-cyanVolt/60 rounded-2xl p-4 transition-all group text-left">
                             <div class="flex items-center justify-between text-cyanVolt mb-2">
                                 <i data-lucide="mail" class="w-5 h-5"></i>
@@ -845,17 +847,15 @@
                             <div class="text-xs sm:text-sm font-bold text-white truncate mt-0.5">david.vyoral@icloud.com</div>
                         </button>
 
-                        <!-- Instagram @d.vyoral -->
                         <a href="https://instagram.com/d.vyoral" target="_blank" rel="noopener noreferrer" class="glass-panel hover:border-emeraldVolt/60 rounded-2xl p-4 transition-all block">
                             <div class="flex items-center justify-between text-emeraldVolt mb-2">
                                 <i data-lucide="instagram" class="w-5 h-5"></i>
-                                <span class="text-[10px] font-bold uppercase text-cyanVolt">27.8K</span>
+                                <span id="ig-card-badge" class="text-[10px] font-bold uppercase text-cyanVolt">27.8K</span>
                             </div>
                             <div class="text-xs text-slate-400">Instagram</div>
                             <div class="text-sm font-bold text-white mt-0.5">@d.vyoral</div>
                         </a>
 
-                        <!-- TikTok @davevyoral -->
                         <a href="https://tiktok.com/@davevyoral" target="_blank" rel="noopener noreferrer" class="glass-panel hover:border-cyanVolt/60 rounded-2xl p-4 transition-all block">
                             <div class="flex items-center justify-between text-cyanVolt mb-2">
                                 <i data-lucide="video" class="w-5 h-5"></i>
@@ -865,7 +865,6 @@
                             <div class="text-sm font-bold text-white mt-0.5">@davevyoral</div>
                         </a>
 
-                        <!-- Media Kit ke stažení -->
                         <button onclick="openMediaKitModal()" class="glass-panel hover:border-emeraldVolt/60 rounded-2xl p-4 transition-all text-left">
                             <div class="flex items-center justify-between text-emeraldVolt mb-2">
                                 <i data-lucide="file-down" class="w-5 h-5"></i>
@@ -905,7 +904,7 @@
             <ul class="space-y-2.5 text-sm text-slate-200">
                 <li class="flex items-start gap-2.5"><span class="text-emeraldVolt font-bold">✓</span> <span><strong>Profil:</strong> Polař (185 cm, pravák, ročník 2006), Prague Beach Team.</span></li>
                 <li class="flex items-start gap-2.5"><span class="text-emeraldVolt font-bold">✓</span> <span><strong>Úspěchy:</strong> Vicemistr ČR U22 & U20, 1. místo Slovenská tour, hlavní soutěž FIVB Futures Brno.</span></li>
-                <li class="flex items-start gap-2.5"><span class="text-emeraldVolt font-bold">✓</span> <span><strong>Dosah:</strong> 27.8K na IG (@d.vyoral) + klubový zásah Prague Beach Teamu.</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-emeraldVolt font-bold">✓</span> <span><strong>Dosah:</strong> <span id="mediakit-ig-val">27.8K</span> na IG (@d.vyoral) + klubový zásah Prague Beach Teamu.</span></li>
                 <li class="flex items-start gap-2.5"><span class="text-emeraldVolt font-bold">✓</span> <span><strong>Plnění:</strong> Logo na dresu a kraťasech, pravidelná turnajová a tréninková Reels, firemní beach workshop.</span></li>
             </ul>
             <div class="pt-3 flex flex-col sm:flex-row gap-3">
@@ -923,368 +922,76 @@
         lucide.createIcons();
 
         // =========================================================================
-        // 1. THREE.JS 360° INTERAKTIVNÍ 3D MODEL POSTAVY BEACHVOLEJBALISTY NA PÍSKU
+        // 1. OVLÁDÁNÍ ÚHLŮ KAMERY 3D AVATARA (avatar.glb)
         // =========================================================================
-        let scene, camera, renderer, playerGroup, headGroup, torsoGroup, leftArmGroup, rightArmGroup, leftLegGroup, rightLegGroup, ballMesh;
-        let targetRotY = -0.35;
-        let targetRotX = 0.12;
-        let currentRotY = -0.35;
-        let currentRotX = 0.12;
-        let targetZoom = 5.4;
-        let currentZoom = 5.4;
-        let isDragging = false;
-        let prevMouseX = 0;
-        let prevMouseY = 0;
-        let activePose = 'stance';
-        let clock = new THREE.Clock();
+        function setAvatarView(mode) {
+            const viewer = document.getElementById('player-3d-avatar');
+            if (!viewer) return;
 
-        function initThreeHero() {
-            const container = document.getElementById('three-hero-container');
-            if (!container || typeof THREE === 'undefined') return;
-
-            scene = new THREE.Scene();
-
-            const width = container.clientWidth || 450;
-            const height = container.clientHeight || 400;
-
-            camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-            camera.position.set(0, 1.65, currentZoom);
-
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(width, height);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.shadowMap.enabled = true;
-            container.innerHTML = '';
-            container.appendChild(renderer.domElement);
-
-            // Osvětlení scény
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
-            scene.add(ambientLight);
-
-            const sunLight = new THREE.DirectionalLight(0xfff5e4, 1.15);
-            sunLight.position.set(4, 7, 5);
-            sunLight.castShadow = true;
-            scene.add(sunLight);
-
-            const rimLight = new THREE.DirectionalLight(0x06B6D4, 0.85);
-            rimLight.position.set(-4, 3, -4);
-            scene.add(rimLight);
-
-            // Pískový kurt (kruhová základna s lajnami)
-            const sandGeo = new THREE.CylinderGeometry(2.35, 2.45, 0.18, 48);
-            const sandMat = new THREE.MeshStandardMaterial({
-                color: 0xd9a760,
-                roughness: 0.92,
-                metalness: 0.02
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.className = "view-btn px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-300 hover:text-white transition-all";
             });
-            const sandCourt = new THREE.Mesh(sandGeo, sandMat);
-            sandCourt.position.y = -0.09;
-            sandCourt.receiveShadow = true;
-            scene.add(sandCourt);
-
-            // Modrá lajna kurtu v písku
-            const lineGeo = new THREE.BoxGeometry(3.2, 0.02, 0.08);
-            const lineMat = new THREE.MeshStandardMaterial({ color: 0x06B6D4, roughness: 0.5 });
-            const courtLine = new THREE.Mesh(lineGeo, lineMat);
-            courtLine.position.set(0, 0.01, 1.25);
-            scene.add(courtLine);
-
-            // Beachvolejbalová síť v pozadí
-            const netGroup = new THREE.Group();
-            netGroup.position.set(0, 0, -1.35);
-
-            const poleGeo = new THREE.CylinderGeometry(0.04, 0.04, 2.35, 16);
-            const poleMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.6, roughness: 0.3 });
-            const leftPole = new THREE.Mesh(poleGeo, poleMat);
-            leftPole.position.set(-1.85, 1.175, 0);
-            const rightPole = new THREE.Mesh(poleGeo, poleMat);
-            rightPole.position.set(1.85, 1.175, 0);
-            netGroup.add(leftPole, rightPole);
-
-            // Horní a dolní páska sítě
-            const tapeGeo = new THREE.BoxGeometry(3.7, 0.07, 0.02);
-            const tapeMat = new THREE.MeshStandardMaterial({ color: 0x06B6D4, emissive: 0x06B6D4, emissiveIntensity: 0.25 });
-            const topTape = new THREE.Mesh(tapeGeo, tapeMat);
-            topTape.position.set(0, 2.24, 0);
-            const botTape = new THREE.Mesh(tapeGeo, tapeMat);
-            botTape.position.set(0, 1.35, 0);
-            netGroup.add(topTape, botTape);
-
-            // Síťovina (wireframe mřížka)
-            const meshGeo = new THREE.PlaneGeometry(3.65, 0.88, 24, 6);
-            const meshMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8, wireframe: true, transparent: true, opacity: 0.45 });
-            const netMesh = new THREE.Mesh(meshGeo, meshMat);
-            netMesh.position.set(0, 1.8, 0);
-            netGroup.add(netMesh);
-            scene.add(netGroup);
-
-            // Materiály postavy hráče
-            const skinMat = new THREE.MeshStandardMaterial({ color: 0xdba47c, roughness: 0.55 });
-            const jerseyMat = new THREE.MeshStandardMaterial({ color: 0x6d28d9, roughness: 0.45 }); // Fialový CZE dres #1
-            const shortsMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.5 });  // Bílé kraťasy
-            const hairMat = new THREE.MeshStandardMaterial({ color: 0x5c3c24, roughness: 0.85 });
-            const oakleyFrameMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2, metalness: 0.7 });
-            const oakleyLensMat = new THREE.MeshStandardMaterial({ color: 0x06B6D4, roughness: 0.1, metalness: 0.9, emissive: 0x06B6D4, emissiveIntensity: 0.25 });
-
-            // Hlavní skupina postavy
-            playerGroup = new THREE.Group();
-            scene.add(playerGroup);
-
-            // Trup & kraťasy
-            torsoGroup = new THREE.Group();
-            torsoGroup.position.set(0, 1.18, 0);
-            playerGroup.add(torsoGroup);
-
-            // Hrudník / dres (atletický V-tvar)
-            const chestGeo = new THREE.CylinderGeometry(0.24, 0.19, 0.56, 20);
-            chestGeo.scale(1.15, 1, 0.72);
-            const chestMesh = new THREE.Mesh(chestGeo, jerseyMat);
-            chestMesh.position.y = 0.22;
-            chestMesh.castShadow = true;
-            torsoGroup.add(chestMesh);
-
-            // Bílé číslo 1 na hrudi a zádech
-            const numMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const numFront = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.16, 0.01), numMat);
-            numFront.position.set(0.11, 0.28, 0.155);
-            const numBack = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.2, 0.01), numMat);
-            numBack.position.set(0, 0.26, -0.155);
-            torsoGroup.add(numFront, numBack);
-
-            // Boky / bílé kraťasy
-            const pelvisGeo = new THREE.CylinderGeometry(0.19, 0.21, 0.26, 20);
-            pelvisGeo.scale(1.12, 1, 0.75);
-            const pelvisMesh = new THREE.Mesh(pelvisGeo, shortsMat);
-            pelvisMesh.position.y = -0.16;
-            pelvisMesh.castShadow = true;
-            torsoGroup.add(pelvisMesh);
-
-            // Hlava, kudrnaté vlasy a sluneční brýle Oakley
-            headGroup = new THREE.Group();
-            headGroup.position.set(0, 0.64, 0.02);
-            torsoGroup.add(headGroup);
-
-            const neckMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.075, 0.12, 16), skinMat);
-            neckMesh.position.y = -0.08;
-            headGroup.add(neckMesh);
-
-            const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.145, 24, 24), skinMat);
-            headMesh.scale.set(0.92, 1.08, 0.96);
-            headMesh.position.y = 0.06;
-            headMesh.castShadow = true;
-            headGroup.add(headMesh);
-
-            // Kudrnaté vlasy
-            const hairCluster = new THREE.Group();
-            hairCluster.position.set(0, 0.16, -0.01);
-            const hairOffsets = [
-                [0, 0.04, 0, 0.13], [-0.08, 0.02, 0.04, 0.09], [0.08, 0.02, 0.04, 0.09],
-                [-0.07, 0.01, -0.06, 0.1], [0.07, 0.01, -0.06, 0.1], [0, 0.02, -0.09, 0.11],
-                [-0.04, 0.06, 0.05, 0.08], [0.04, 0.06, 0.05, 0.08]
-            ];
-            hairOffsets.forEach(([hx, hy, hz, hr]) => {
-                const puff = new THREE.Mesh(new THREE.SphereGeometry(hr, 14, 14), hairMat);
-                puff.position.set(hx, hy, hz);
-                hairCluster.add(puff);
-            });
-            headGroup.add(hairCluster);
-
-            // Sportovní brýle Oakley
-            const glassesGroup = new THREE.Group();
-            glassesGroup.position.set(0, 0.07, 0.135);
-            const shieldLens = new THREE.Mesh(new THREE.BoxGeometry(0.23, 0.068, 0.03), oakleyLensMat);
-            const topRim = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.016, 0.036), oakleyFrameMat);
-            topRim.position.y = 0.034;
-            glassesGroup.add(shieldLens, topRim);
-            headGroup.add(glassesGroup);
-
-            // Funkce pro vytvoření kloubové končetiny
-            function createLimb(rTop, rBot, len, mat, hasShort = false) {
-                const g = new THREE.Group();
-                const joint = new THREE.Mesh(new THREE.SphereGeometry(rTop, 16, 16), mat);
-                g.add(joint);
-                const seg = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBot, len, 16), mat);
-                seg.position.y = -len / 2;
-                seg.castShadow = true;
-                g.add(seg);
-                if (hasShort) {
-                    const shortLeg = new THREE.Mesh(new THREE.CylinderGeometry(rTop * 1.15, rTop * 1.12, len * 0.55, 16), shortsMat);
-                    shortLeg.position.y = -len * 0.25;
-                    g.add(shortLeg);
-                }
-                return g;
-            }
-
-            // Levá a pravá paže
-            leftArmGroup = createLimb(0.068, 0.046, 0.56, skinMat);
-            leftArmGroup.position.set(-0.29, 0.45, 0);
-            torsoGroup.add(leftArmGroup);
-
-            rightArmGroup = createLimb(0.068, 0.046, 0.56, skinMat);
-            rightArmGroup.position.set(0.29, 0.45, 0);
-            torsoGroup.add(rightArmGroup);
-
-            // Levá a pravá noha
-            leftLegGroup = createLimb(0.095, 0.058, 0.88, skinMat, true);
-            leftLegGroup.position.set(-0.12, 0.92, 0);
-            playerGroup.add(leftLegGroup);
-
-            rightLegGroup = createLimb(0.095, 0.058, 0.88, skinMat, true);
-            rightLegGroup.position.set(0.12, 0.92, 0);
-            playerGroup.add(rightLegGroup);
-
-            // Beachvolejbalový míč
-            const ballGeo = new THREE.SphereGeometry(0.15, 24, 24);
-            const ballMat = new THREE.MeshStandardMaterial({
-                color: 0xfacc15,
-                roughness: 0.4,
-                emissive: 0xf59e0b,
-                emissiveIntensity: 0.15
-            });
-            ballMesh = new THREE.Mesh(ballGeo, ballMat);
-            ballMesh.position.set(0.45, 1.35, 0.55);
-            ballMesh.castShadow = true;
-            scene.add(ballMesh);
-
-            // Ovládání otáčení myší a dotykem
-            container.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                prevMouseX = e.clientX;
-                prevMouseY = e.clientY;
-            });
-            window.addEventListener('mouseup', () => { isDragging = false; });
-            window.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                const dx = e.clientX - prevMouseX;
-                const dy = e.clientY - prevMouseY;
-                targetRotY += dx * 0.012;
-                targetRotX = Math.max(-0.35, Math.min(0.65, targetRotX + dy * 0.008));
-                prevMouseX = e.clientX;
-                prevMouseY = e.clientY;
-            });
-
-            container.addEventListener('touchstart', (e) => {
-                isDragging = true;
-                prevMouseX = e.touches[0].clientX;
-                prevMouseY = e.touches[0].clientY;
-            }, { passive: true });
-            container.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                const dx = e.touches[0].clientX - prevMouseX;
-                const dy = e.touches[0].clientY - prevMouseY;
-                targetRotY += dx * 0.014;
-                targetRotX = Math.max(-0.35, Math.min(0.65, targetRotX + dy * 0.009));
-                prevMouseX = e.touches[0].clientX;
-                prevMouseY = e.touches[0].clientY;
-            }, { passive: true });
-            container.addEventListener('touchend', () => { isDragging = false; });
-
-            container.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                targetZoom = Math.max(3.4, Math.min(7.2, targetZoom + e.deltaY * 0.003));
-            }, { passive: false });
-
-            window.addEventListener('resize', () => {
-                if (!container || !renderer || !camera) return;
-                const w = container.clientWidth;
-                const h = container.clientHeight;
-                camera.aspect = w / h;
-                camera.updateProjectionMatrix();
-                renderer.setSize(w, h);
-            });
-
-            animateThreeHero();
-        }
-
-        function setPlayerPose(pose) {
-            activePose = pose;
-            document.querySelectorAll('.pose-btn').forEach(btn => {
-                btn.className = "pose-btn px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-300 hover:text-white transition-all";
-            });
-            const activeBtn = document.getElementById(`pose-btn-${pose}`);
+            const activeBtn = document.getElementById(`view-btn-${mode}`);
             if (activeBtn) {
-                activeBtn.className = "pose-btn px-3 py-1.5 rounded-lg text-[11px] font-bold bg-cyanVolt text-midnight transition-all";
+                activeBtn.className = "view-btn px-3 py-1.5 rounded-lg text-[11px] font-bold bg-cyanVolt text-midnight transition-all";
+            }
+
+            if (mode === 'full') {
+                viewer.cameraOrbit = '0deg 82deg 105%';
+                viewer.cameraTarget = 'auto auto auto';
+            } else if (mode === 'jersey') {
+                viewer.cameraOrbit = '0deg 78deg 70%';
+                viewer.cameraTarget = '0m 1.15m 0m';
+            } else if (mode === 'side') {
+                viewer.cameraOrbit = '65deg 82deg 105%';
+                viewer.cameraTarget = 'auto auto auto';
             }
         }
 
-        function animateThreeHero() {
-            requestAnimationFrame(animateThreeHero);
-            const t = clock.getElapsedTime();
-
-            if (!isDragging) {
-                targetRotY += 0.0035; // Pomalé plynulé otáčení na ukázku 3D modelu
-            }
-
-            currentRotY += (targetRotY - currentRotY) * 0.08;
-            currentRotX += (targetRotX - currentRotX) * 0.08;
-            currentZoom += (targetZoom - currentZoom) * 0.08;
-
-            camera.position.x = Math.sin(currentRotY) * currentZoom;
-            camera.position.z = Math.cos(currentRotY) * currentZoom;
-            camera.position.y = 1.35 + currentRotX * 2.2;
-            camera.lookAt(0, 1.15, 0);
-
-            if (playerGroup && torsoGroup && leftArmGroup && rightArmGroup && leftLegGroup && rightLegGroup && ballMesh) {
-                const breathe = Math.sin(t * 2.6) * 0.025;
-
-                if (activePose === 'stance') {
-                    // Obranný postoj polaře
-                    playerGroup.position.y = breathe;
-                    playerGroup.rotation.x = 0.08;
-                    torsoGroup.rotation.x = 0.14;
-                    leftArmGroup.rotation.set(-0.65, 0, -0.35);
-                    rightArmGroup.rotation.set(-0.65, 0, 0.35);
-                    leftLegGroup.rotation.set(-0.18, 0, -0.14);
-                    rightLegGroup.rotation.set(-0.18, 0, 0.14);
-                    ballMesh.position.set(0.42, 1.28 + Math.sin(t * 3) * 0.08, 0.58);
-                } else if (activePose === 'dig') {
-                    // Nízký zákrok / bagr v poli
-                    playerGroup.position.y = -0.16 + breathe;
-                    playerGroup.rotation.x = 0.25;
-                    torsoGroup.rotation.x = 0.36;
-                    leftArmGroup.rotation.set(-1.15, 0.28, -0.18);
-                    rightArmGroup.rotation.set(-1.15, -0.28, 0.18);
-                    leftLegGroup.rotation.set(-0.42, 0, -0.22);
-                    rightLegGroup.rotation.set(-0.35, 0, 0.24);
-                    ballMesh.position.set(0, 0.92 + Math.abs(Math.sin(t * 3.5)) * 0.28, 0.62);
-                } else if (activePose === 'attack') {
-                    // Výskok a nápřah pravou rukou na smeč
-                    const jumpY = 0.38 + Math.sin(t * 3.2) * 0.12;
-                    playerGroup.position.y = jumpY;
-                    playerGroup.rotation.x = -0.08;
-                    torsoGroup.rotation.x = -0.15;
-                    rightArmGroup.rotation.set(-2.65, 0, 0.15); // Pravák v nápřahu
-                    leftArmGroup.rotation.set(-0.95, 0, -0.32);
-                    leftLegGroup.rotation.set(0.24, 0, -0.08);
-                    rightLegGroup.rotation.set(0.32, 0, 0.08);
-                    ballMesh.position.set(0.18, 2.15 + Math.sin(t * 3.2) * 0.1, 0.35);
-                }
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        window.addEventListener('load', initThreeHero);
-
         // =========================================================================
-        // 2. ŽIVÝ INSTAGRAM SYNC (@d.vyoral)
+        // 2. ŽIVÝ INSTAGRAM SYNC ZE SOUBORU stats.json (@d.vyoral)
         // =========================================================================
-        function syncInstagramStats() {
-            const btn = document.getElementById('btn-ig-sync');
+        async function loadInstagramStats(isManualClick = false) {
             const icon = document.getElementById('sync-icon');
             const ts = document.getElementById('ig-sync-timestamp');
+            const valEl = document.getElementById('ig-followers-val');
+            const cardBadge = document.getElementById('ig-card-badge');
+            const modalVal = document.getElementById('mediakit-ig-val');
 
-            icon.classList.add('animate-spin');
-            ts.textContent = 'Načítám aktuální data z @d.vyoral...';
+            if (isManualClick && icon) {
+                icon.classList.add('animate-spin');
+                ts.textContent = 'Načítám aktuální data ze stats.json...';
+            }
 
-            setTimeout(() => {
-                icon.classList.remove('animate-spin');
+            try {
+                const res = await fetch(`stats.json?t=${Date.now()}`);
+                if (!res.ok) throw new Error('stats.json nedostupný');
+                const data = await res.json();
+
+                const displayFollowers = data.followers_formatted || data.followers || '27.8K';
+                if (valEl) valEl.textContent = displayFollowers;
+                if (cardBadge) cardBadge.textContent = displayFollowers;
+                if (modalVal) modalVal.textContent = displayFollowers;
+
+                const updatedText = data.last_updated ? `Aktualizováno: ${data.last_updated}` : 'Synchronizováno • @d.vyoral';
+                if (ts) ts.textContent = `${updatedText} • Ověřený profil`;
+            } catch (err) {
                 const now = new Date();
                 const hh = String(now.getHours()).padStart(2, '0');
                 const mm = String(now.getMinutes()).padStart(2, '0');
-                ts.textContent = `Synchronizováno dnes v ${hh}:${mm} • @d.vyoral (27.8K)`;
-            }, 650);
+                if (ts) ts.textContent = `Synchronizováno dnes v ${hh}:${mm} • @d.vyoral`;
+            } finally {
+                if (icon) {
+                    setTimeout(() => icon.classList.remove('animate-spin'), 450);
+                }
+            }
         }
+
+        function syncInstagramStats() {
+            loadInstagramStats(true);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => loadInstagramStats(false));
 
         // =========================================================================
         // 3. PAVUČINA DOVEDNOSTÍ (PEVNÉ BODY BEZ POSKAKOVÁNÍ + PŘEPÍNÁNÍ FOTEK)
@@ -1361,13 +1068,11 @@
             const item = radarAttributes[index];
             if (!item) return;
 
-            // Aktualizace textové karty pod pavučinou
             document.getElementById('attr-badge').textContent = item.badge;
             document.getElementById('attr-submetric').textContent = item.sub;
             document.getElementById('attr-title').textContent = item.title;
             document.getElementById('attr-desc').textContent = item.desc;
 
-            // Pevné umístění prstence a zvýraznění aktivního bodu bez změny souřadnic
             const ring = document.getElementById('radar-active-ring');
             ring.setAttribute('cx', item.cx);
             ring.setAttribute('cy', item.cy);
@@ -1386,7 +1091,6 @@
                 }
             }
 
-            // Přepnutí reálné fotky v levém prohlížeči
             const photoEl = document.getElementById('scouting-photo');
             photoEl.onerror = function() {
                 this.onerror = null;
@@ -1403,149 +1107,3 @@
             if (activeTab) {
                 activeTab.className = "photo-tab px-2.5 py-1 rounded-lg text-[11px] font-bold bg-cyanVolt text-midnight transition-colors";
             }
-
-            const marker = document.getElementById('zone-player-marker');
-            marker.setAttribute('cx', item.zoneX);
-            marker.setAttribute('cy', item.zoneY);
-        }
-
-        // =========================================================================
-        // 4. KONFIGURÁTOR LOGA SPONZORA NA DRESU
-        // =========================================================================
-        let currentPlacement = 'chest';
-        let uploadedLogoSrc = null;
-
-        function setPlacement(pos) {
-            currentPlacement = pos;
-            const overlay = document.getElementById('sponsor-overlay');
-            const badge = document.getElementById('kit-label-badge');
-
-            document.querySelectorAll('.place-btn').forEach(btn => {
-                btn.className = "place-btn py-2.5 px-2 rounded-xl text-xs font-bold bg-white/5 text-slate-300 hover:bg-white/10 transition-all";
-            });
-            document.getElementById(`place-${pos}`).className = "place-btn py-2.5 px-2 rounded-xl text-xs font-bold bg-cyanVolt text-midnight transition-all";
-
-            if (pos === 'chest') {
-                overlay.style.top = '52%';
-                overlay.style.left = '51%';
-                badge.textContent = 'HRUĎ DRESU';
-            } else if (pos === 'shorts') {
-                overlay.style.top = '88%';
-                overlay.style.left = '61%';
-                badge.textContent = 'BÍLÉ KRAŤASY';
-            } else if (pos === 'sleeve') {
-                overlay.style.top = '41%';
-                overlay.style.left = '35%';
-                badge.textContent = 'RAMENO / RUKÁV';
-            }
-            updateJerseyPreview();
-        }
-
-        function setKitColor(color) {
-            const photo = document.getElementById('configurator-photo');
-            const tint = document.getElementById('kit-tint-layer');
-
-            document.querySelectorAll('.kit-btn').forEach(btn => {
-                btn.className = "kit-btn flex items-center justify-center gap-2 py-2.5 px-2 rounded-xl bg-white/5 border-2 border-transparent text-xs font-semibold text-slate-300";
-            });
-            document.getElementById(`kit-${color}`).className = "kit-btn flex items-center justify-center gap-2 py-2.5 px-2 rounded-xl bg-white/10 border-2 border-cyanVolt text-xs font-semibold text-white";
-
-            if (color === 'purple') {
-                photo.style.filter = 'none';
-                tint.className = 'absolute inset-0 pointer-events-none transition-all duration-300 bg-transparent';
-            } else if (color === 'blue') {
-                photo.style.filter = 'hue-rotate(-42deg) saturate(1.25)';
-                tint.className = 'absolute inset-0 pointer-events-none transition-all duration-300 bg-sky-500/10 mix-blend-color';
-            } else if (color === 'black') {
-                photo.style.filter = 'grayscale(0.78) contrast(1.18)';
-                tint.className = 'absolute inset-0 pointer-events-none transition-all duration-300 bg-slate-950/20';
-            }
-        }
-
-        function updateJerseyPreview() {
-            const textVal = document.getElementById('sponsor-text-input').value.trim();
-            const scaleVal = document.getElementById('logo-size-slider').value;
-            document.getElementById('size-value').textContent = `${scaleVal} %`;
-
-            const overlay = document.getElementById('sponsor-overlay');
-            const textEl = document.getElementById('sponsor-text-display');
-            const imgEl = document.getElementById('sponsor-img-display');
-
-            const mult = currentPlacement === 'shorts' ? 0.65 : (currentPlacement === 'sleeve' ? 0.62 : 1);
-            const finalScale = (scaleVal / 100) * mult;
-            const tilt = currentPlacement === 'sleeve' ? -14 : (currentPlacement === 'shorts' ? 4 : -2);
-
-            overlay.style.transform = `translate(-50%, -50%) rotate(${tilt}deg) scale(${finalScale})`;
-
-            if (currentPlacement === 'shorts') {
-                textEl.style.color = '#060B19';
-                textEl.style.textShadow = '0 1px 4px rgba(255,255,255,0.65)';
-            } else {
-                textEl.style.color = '#FFFFFF';
-                textEl.style.textShadow = '0 2px 8px rgba(0,0,0,0.85)';
-            }
-
-            if (uploadedLogoSrc) {
-                textEl.classList.add('hidden');
-                imgEl.classList.remove('hidden');
-                imgEl.src = uploadedLogoSrc;
-            } else {
-                imgEl.classList.add('hidden');
-                textEl.classList.remove('hidden');
-                textEl.textContent = textVal || 'VAŠE ZNAČKA';
-            }
-        }
-
-        function handleLogoUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                uploadedLogoSrc = e.target.result;
-                document.getElementById('clear-logo-btn').classList.remove('hidden');
-                updateJerseyPreview();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function clearUploadedLogo() {
-            uploadedLogoSrc = null;
-            document.getElementById('sponsor-logo-upload').value = '';
-            document.getElementById('clear-logo-btn').classList.add('hidden');
-            updateJerseyPreview();
-        }
-
-        // =========================================================================
-        // 5. KOPÍROVÁNÍ E-MAILU & MEDIA KIT MODAL
-        // =========================================================================
-        function copyEmail() {
-            const tempInput = document.createElement('input');
-            tempInput.value = 'david.vyoral@icloud.com';
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-
-            const badge = document.getElementById('copy-badge');
-            badge.textContent = 'Zkopírováno ✓';
-            badge.classList.add('bg-emeraldVolt', 'text-midnight');
-            setTimeout(() => {
-                badge.textContent = 'Kopírovat';
-                badge.classList.remove('bg-emeraldVolt', 'text-midnight');
-            }, 2200);
-        }
-
-        function openMediaKitModal() {
-            const modal = document.getElementById('mediakit-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeMediaKitModal() {
-            const modal = document.getElementById('mediakit-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-    </script>
-</body>
-</html>
