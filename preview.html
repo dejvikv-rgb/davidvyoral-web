@@ -1,772 +1,156 @@
-html_content = """<!DOCTYPE html>
-<html lang="cs" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>David Vyoral | Beach Volleyball Athlete & Portfolio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Space Grotesk', 'sans-serif'],
-                    },
-                    colors: {
-                        midnight: '#050914',
-                        deepOcean: '#0A1226',
-                        cyanVolt: '#06B6D4',
-                        emeraldVolt: '#10B981',
-                        mikasaYellow: '#FFD400',
-                        mikasaBlue: '#0047AB'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #050914;
-            color: #F8FAFC;
-            overflow-x: hidden;
-        }
-        .noise-overlay {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 40;
-            opacity: 0.035;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-        }
-        /* 3D Canvas sits IN FRONT of giant background typography (z-index: 15) and BEHIND UI cards (z-index: 25) */
-        #webgl-container {
-            position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 15;
-            pointer-events: none;
-        }
-        .bg-typo-layer {
-            position: relative;
-            z-index: 5;
-        }
-        .fg-card-layer {
-            position: relative;
-            z-index: 25;
-        }
-        .glass-panel {
-            background: rgba(10, 18, 38, 0.78);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-        .glass-panel-cyan {
-            background: linear-gradient(145deg, rgba(6, 182, 212, 0.14), rgba(10, 18, 38, 0.88));
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(6, 182, 212, 0.35);
-        }
-        .outline-text {
-            -webkit-text-stroke: 2px rgba(6, 182, 212, 0.35);
-            color: transparent;
-        }
-        .hero-gradient-text {
-            background: linear-gradient(135deg, #FFFFFF 15%, #06B6D4 55%, #10B981 95%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        /* Pinned Kinetic Typography Stage */
-        .kinetic-stage {
-            height: 320vh;
-            position: relative;
-        }
-        .kinetic-sticky {
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            width: 100%;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .kinetic-slide {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 1.5rem;
-            opacity: 0;
-            pointer-events: none;
-        }
-    </style>
-</head>
-<body class="antialiased selection:bg-cyanVolt selection:text-midnight">
+with open("preview.html", "r", encoding="utf-8") as f:
+    old_html = f.read()
 
-    <div class="noise-overlay"></div>
+old_func_start = old_html.find("            // Authentic Mikasa BV550C Beach Pro Texture")
+old_func_end = old_html.find("            const mikasaTex = createMikasaBV550CTexture();")
 
-    <!-- FIXED 3D MIKASA BV550C VOLLEYBALL SCENE -->
-    <div id="webgl-container"></div>
-
-    <!-- NAVIGATION -->
-    <header class="fixed top-0 inset-x-0 z-50 border-b border-white/10 bg-midnight/80 backdrop-blur-xl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <a href="#" class="flex items-center gap-2.5 group">
-                <span class="w-2.5 h-2.5 rounded-full bg-emeraldVolt group-hover:scale-125 transition-transform"></span>
-                <span class="font-display font-extrabold text-lg tracking-wider text-white">DAVID <span class="text-cyanVolt">VYORAL</span></span>
-            </a>
-            <nav class="hidden md:flex items-center gap-7 text-xs font-bold uppercase tracking-widest text-slate-300">
-                <a href="#kinetic-journey" class="hover:text-cyanVolt transition-colors">3D Průlet</a>
-                <a href="#uspechy" class="hover:text-cyanVolt transition-colors">Úspěchy</a>
-                <a href="#skauting" class="hover:text-cyanVolt transition-colors">3D Skauting</a>
-                <a href="#sezona-2027" class="hover:text-cyanVolt transition-colors">Sezóna 2027</a>
-                <a href="#partnerstvi" class="hover:text-emeraldVolt transition-colors">Partnerství</a>
-            </nav>
-            <a href="#partnerstvi" class="px-4 py-2 rounded-full bg-gradient-to-r from-cyanVolt to-emeraldVolt text-midnight font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity shadow-lg shadow-cyanVolt/20">
-                Spolupráce
-            </a>
-        </div>
-    </header>
-
-    <!-- ======================================================================= -->
-    <!-- 1. HERO SECTION (GIANT HEADLINE BEHIND 3D MIKASA BV550C BALL)            -->
-    <!-- ======================================================================= -->
-    <section id="hero" class="min-h-screen flex flex-col justify-between pt-24 pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative">
-        
-        <!-- Top Status Pill + Live IG Views -->
-        <div class="fg-card-layer flex flex-wrap items-center justify-between gap-4 pt-2">
-            <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full glass-panel border-cyanVolt/30 text-xs font-bold tracking-wider text-cyanVolt uppercase">
-                <span class="w-2 h-2 rounded-full bg-emeraldVolt animate-pulse"></span>
-                PRAGUE BEACH TEAM • POLAŘ (185 CM) • ROČNÍK 2006
-            </div>
-
-            <div class="glass-panel rounded-2xl px-4 py-2.5 flex items-center gap-3 border border-cyanVolt/25">
-                <div class="w-8 h-8 rounded-lg bg-cyanVolt/15 flex items-center justify-center text-cyanVolt">
-                    <i data-lucide="instagram" class="w-4 h-4"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                        <span>@d.vyoral</span>
-                        <span class="text-emeraldVolt">• LIVE</span>
-                    </div>
-                    <div class="font-display text-sm sm:text-base font-bold text-white leading-tight">
-                        <span id="ig-followers-val">36.5K</span> <span class="text-[11px] font-sans font-normal text-slate-400">Zhlédnutí Reels / měs.</span>
-                    </div>
-                </div>
-                <button onclick="loadInstagramStats(true)" title="Aktualizovat ze stats.json" class="p-1.5 rounded-lg hover:bg-white/10 text-cyanVolt transition-colors">
-                    <i id="sync-icon" data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Oversized Typography Layer (3D Mikasa passes directly in front of this text) -->
-        <div class="bg-typo-layer my-auto py-8 text-center select-none">
-            <div class="text-xs sm:text-sm font-bold tracking-[0.32em] text-emeraldVolt uppercase mb-2 hero-stagger">
-                BEACH VOLLEYBALL • PRAGUE • CZECH REPUBLIC
-            </div>
-            <h1 class="font-display font-extrabold text-6xl sm:text-8xl lg:text-[8.5rem] leading-[0.88] tracking-tighter uppercase hero-stagger">
-                <span class="block text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">DAVID</span>
-                <span class="block hero-gradient-text">VYORAL</span>
-            </h1>
-            <div class="mt-4 font-display font-extrabold text-2xl sm:text-4xl lg:text-5xl tracking-[0.18em] outline-text uppercase hero-stagger">
-                DEFENDER & PLAYMAKER
-            </div>
-        </div>
-
-        <!-- Bottom CTA Bar -->
-        <div class="fg-card-layer flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 pt-5">
-            <p class="text-xs sm:text-sm text-slate-300 max-w-lg text-center sm:text-left">
-                Specialista na hru v poli a obranu. Přechod do elitní mužské kategorie, starty na <strong>FIVB Beach Pro Tour</strong> & <strong>MEVZA</strong> a studium financí na <strong>VŠE v Praze</strong>.
-            </p>
-            <div class="flex items-center gap-3">
-                <a href="#kinetic-journey" class="px-5 py-3 rounded-xl bg-white text-midnight font-display font-bold text-xs uppercase tracking-wider hover:bg-cyanVolt transition-colors flex items-center gap-2">
-                    <span>Spustit 3D průlet</span>
-                    <i data-lucide="arrow-down" class="w-4 h-4"></i>
-                </a>
-                <a href="#uspechy" class="px-5 py-3 rounded-xl glass-panel text-white font-display font-bold text-xs uppercase tracking-wider hover:border-cyanVolt transition-colors">
-                    Medaile
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- ======================================================================= -->
-    <!-- 2. KINETIC SCROLL STORYTELLING (LIKE THE VIDEO: TEXTS FLY AROUND BALL)  -->
-    <!-- ======================================================================= -->
-    <section id="kinetic-journey" class="kinetic-stage">
-        <div class="kinetic-sticky">
-            
-            <!-- Giant Marquee Background Stripes that slide horizontally on scroll -->
-            <div class="bg-typo-layer absolute inset-0 flex flex-col justify-between py-24 pointer-events-none opacity-25 select-none overflow-hidden">
-                <div id="marquee-top" class="font-display font-extrabold text-7xl sm:text-9xl whitespace-nowrap tracking-tighter text-cyanVolt">
-                    FIVB BEACH PRO TOUR • MEVZA • MČR • PRAGUE BEACH TEAM •
-                </div>
-                <div id="marquee-bottom" class="font-display font-extrabold text-7xl sm:text-9xl whitespace-nowrap tracking-tighter outline-text">
-                    DEFENSE • SPEED • PRECISION • MIKASA BV550C •
-                </div>
-            </div>
-
-            <!-- Slide 1: Flies in from bottom/scale while 3D Mikasa rotates in center -->
-            <div id="k-slide-1" class="kinetic-slide bg-typo-layer max-w-5xl mx-auto">
-                <span class="px-3 py-1 rounded-full bg-cyanVolt/15 border border-cyanVolt/40 text-cyanVolt text-xs font-bold tracking-[0.25em] uppercase mb-4">
-                    01 / HERNÍ IDENTITA
-                </span>
-                <h2 class="font-display font-extrabold text-5xl sm:text-7xl lg:text-8xl uppercase leading-[0.9] tracking-tight text-white">
-                    OBRANA V POLI<br>
-                    <span class="hero-gradient-text">ROZHODUJE ZÁPASY</span>
-                </h2>
-                <p class="mt-6 text-sm sm:text-lg text-slate-200 max-w-xl glass-panel px-6 py-4 rounded-2xl">
-                    Rychlý první krok v hlubokém písku, čtení úderu přes blok a přesná nahrávka z pohybu pro okamžitý protiútok.
-                </p>
-            </div>
-
-            <!-- Slide 2: Flies in diagonally as 3D Mikasa tilts and zooms -->
-            <div id="k-slide-2" class="kinetic-slide bg-typo-layer max-w-5xl mx-auto">
-                <span class="px-3 py-1 rounded-full bg-emeraldVolt/15 border border-emeraldVolt/40 text-emeraldVolt text-xs font-bold tracking-[0.25em] uppercase mb-4">
-                    02 / MEZINÁRODNÍ SCÉNA
-                </span>
-                <h2 class="font-display font-extrabold text-5xl sm:text-7xl lg:text-8xl uppercase leading-[0.9] tracking-tight text-white">
-                    OD MČR AŽ NA<br>
-                    <span class="text-emeraldVolt">SVĚTOVOU TOUR</span>
-                </h2>
-                <div class="mt-6 grid grid-cols-3 gap-4 max-w-xl w-full glass-panel p-5 rounded-2xl">
-                    <div>
-                        <div class="font-display text-3xl sm:text-4xl font-extrabold text-cyanVolt">2× 2.</div>
-                        <div class="text-[11px] uppercase font-bold text-slate-300 mt-1">Vicemistr ČR</div>
-                    </div>
-                    <div>
-                        <div class="font-display text-3xl sm:text-4xl font-extrabold text-emeraldVolt">2.</div>
-                        <div class="text-[11px] uppercase font-bold text-slate-300 mt-1">MEVZA Kypr</div>
-                    </div>
-                    <div>
-                        <div class="font-display text-3xl sm:text-4xl font-extrabold text-white">FIVB</div>
-                        <div class="text-[11px] uppercase font-bold text-slate-300 mt-1">Main Draw Brno</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Slide 3: Flies in cleanly before transitioning to cards -->
-            <div id="k-slide-3" class="kinetic-slide bg-typo-layer max-w-5xl mx-auto">
-                <span class="px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/40 text-amber-300 text-xs font-bold tracking-[0.25em] uppercase mb-4">
-                    03 / DUÁLNÍ KARIÉRA
-                </span>
-                <h2 class="font-display font-extrabold text-5xl sm:text-7xl lg:text-8xl uppercase leading-[0.9] tracking-tight text-white">
-                    DISCIPLÍNA<br>
-                    <span class="outline-text">&amp; ANALYTIKA VŠE</span>
-                </h2>
-                <p class="mt-6 text-sm sm:text-lg text-slate-200 max-w-xl glass-panel px-6 py-4 rounded-2xl">
-                    Vrcholová příprava v <strong>Prague Beach Teamu</strong> propojená se studiem na <strong>Fakultě financí a účetnictví VŠE v Praze</strong>.
-                </p>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- ======================================================================= -->
-    <!-- 3. ÚSPĚCHY & MEDAILE (VŠECH 5 KARET + KINETIC REVEAL)                    -->
-    <!-- ======================================================================= -->
-    <section id="uspechy" class="fg-card-layer py-24 border-t border-white/10 bg-midnight/90 backdrop-blur-xl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-                <div>
-                    <div class="text-xs font-bold tracking-[0.25em] text-emeraldVolt uppercase mb-2">VÝSLEDKY & MEZINÁRODNÍ ZKUŠENOSTI</div>
-                    <h2 class="font-display text-4xl sm:text-6xl font-extrabold text-white uppercase tracking-tight">Klíčové úspěchy</h2>
-                </div>
-                <p class="text-xs sm:text-sm text-slate-400 max-w-md">
-                    Medailová umístění z mistrovství republiky, středoevropské série MEVZA i start v hlavní soutěži světového okruhu FIVB.
-                </p>
-            </div>
-
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                <!-- 1. Vicemistr ČR U22 (posunutý cut výš pro obě tváře) -->
-                <div class="achievement-card glass-panel rounded-3xl p-6 flex flex-col items-center text-center justify-between hover:border-cyanVolt/50 transition-all">
-                    <div class="flex flex-col items-center">
-                        <div class="w-24 h-24 flex items-center justify-center mb-3">
-                            <svg viewBox="0 0 120 130" class="w-20 h-20 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)]">
-                                <defs>
-                                    <linearGradient id="silverGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#F8FAFC"/>
-                                        <stop offset="50%" stop-color="#CBD5E1"/>
-                                        <stop offset="100%" stop-color="#64748B"/>
-                                    </linearGradient>
-                                </defs>
-                                <polygon points="34,6 54,6 64,54 46,54" fill="#1D4ED8"/>
-                                <polygon points="86,6 66,6 56,54 74,54" fill="#DC2626"/>
-                                <circle cx="60" cy="54" r="6" fill="none" stroke="#CBD5E1" stroke-width="3"/>
-                                <circle cx="60" cy="86" r="34" fill="url(#silverGrad1)" stroke="#F8FAFC" stroke-width="2"/>
-                                <text x="60" y="83" fill="#0F172A" font-family="Space Grotesk, sans-serif" font-weight="800" font-size="16" text-anchor="middle">2.</text>
-                                <text x="60" y="98" fill="#1E293B" font-family="Inter, sans-serif" font-weight="700" font-size="8" text-anchor="middle">MČR U22</text>
-                            </svg>
-                        </div>
-                        <span class="px-2.5 py-0.5 rounded-full bg-slate-300/15 text-slate-200 text-[11px] font-bold uppercase tracking-wider mb-2">
-                            STŘÍBRNÁ MEDAILE
-                        </span>
-                        <h3 class="font-display text-xl font-bold text-white">Vicemistr ČR U22</h3>
-                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                            Mistrovství České republiky juniorů do 22 let • ČVS
-                        </p>
-                    </div>
-                    <div class="w-full mt-4 rounded-xl overflow-hidden border border-cyanVolt/30 aspect-[16/9] bg-midnight">
-                        <img src="images/mcr-u22.jpg" alt="Vicemistr ČR U22" class="w-full h-full object-cover object-[center_12%]">
-                    </div>
-                </div>
-
-                <!-- 2. Vicemistr ČR U20 -->
-                <div class="achievement-card glass-panel rounded-3xl p-6 flex flex-col items-center text-center justify-between hover:border-cyanVolt/50 transition-all">
-                    <div class="flex flex-col items-center">
-                        <div class="w-24 h-24 flex items-center justify-center mb-3">
-                            <svg viewBox="0 0 120 130" class="w-20 h-20 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)]">
-                                <defs>
-                                    <linearGradient id="silverGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#F8FAFC"/>
-                                        <stop offset="50%" stop-color="#94A3B8"/>
-                                        <stop offset="100%" stop-color="#E2E8F0"/>
-                                    </linearGradient>
-                                </defs>
-                                <polygon points="34,6 54,6 64,54 46,54" fill="#1E40AF"/>
-                                <polygon points="86,6 66,6 56,54 74,54" fill="#DC2626"/>
-                                <circle cx="60" cy="54" r="6" fill="none" stroke="#E2E8F0" stroke-width="3"/>
-                                <circle cx="60" cy="86" r="34" fill="url(#silverGrad2)" stroke="#FFFFFF" stroke-width="2"/>
-                                <text x="60" y="83" fill="#0F172A" font-family="Space Grotesk, sans-serif" font-weight="800" font-size="16" text-anchor="middle">2.</text>
-                                <text x="60" y="98" fill="#1E293B" font-family="Inter, sans-serif" font-weight="700" font-size="8" text-anchor="middle">MČR U20</text>
-                            </svg>
-                        </div>
-                        <span class="px-2.5 py-0.5 rounded-full bg-slate-300/15 text-slate-200 text-[11px] font-bold uppercase tracking-wider mb-2">
-                            STŘÍBRNÁ MEDAILE
-                        </span>
-                        <h3 class="font-display text-xl font-bold text-white">Vicemistr ČR U20</h3>
-                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                            Mistrovství České republiky juniorů do 20 let • ČVS
-                        </p>
-                    </div>
-                    <div class="w-full mt-4 rounded-xl overflow-hidden border border-cyanVolt/30 aspect-[16/9] bg-midnight">
-                        <img src="images/mcr-u20.jpg" alt="Vicemistr ČR U20" class="w-full h-full object-cover object-[center_18%]">
-                    </div>
-                </div>
-
-                <!-- 3. 1. místo Slovenská tour -->
-                <div class="achievement-card glass-panel-cyan rounded-3xl p-6 flex flex-col items-center text-center justify-between">
-                    <div class="flex flex-col items-center">
-                        <div class="w-24 h-24 flex items-center justify-center mb-3">
-                            <svg viewBox="0 0 120 130" class="w-20 h-20 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)]">
-                                <defs>
-                                    <linearGradient id="goldTrophyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#FEF08A"/>
-                                        <stop offset="50%" stop-color="#FACC15"/>
-                                        <stop offset="100%" stop-color="#D97706"/>
-                                    </linearGradient>
-                                </defs>
-                                <path d="M35 28 C16 28 16 56 38 60" fill="none" stroke="#FACC15" stroke-width="5" stroke-linecap="round"/>
-                                <path d="M85 28 C104 28 104 56 82 60" fill="none" stroke="#FACC15" stroke-width="5" stroke-linecap="round"/>
-                                <path d="M34 18 L86 18 L80 56 C78 72 68 78 60 78 C52 78 42 72 40 56 Z" fill="url(#goldTrophyGrad)" stroke="#FEF9C3" stroke-width="1.5"/>
-                                <rect x="55" y="78" width="10" height="20" fill="#F59E0B"/>
-                                <path d="M42 98 L78 98 L82 106 L38 106 Z" fill="#FACC15"/>
-                                <rect x="32" y="106" width="56" height="14" rx="3" fill="#0F172A" stroke="#F59E0B" stroke-width="1.5"/>
-                                <text x="60" y="50" fill="#451A03" font-family="Space Grotesk, sans-serif" font-weight="800" font-size="18" text-anchor="middle">1.</text>
-                                <text x="60" y="116" fill="#FACC15" font-family="Inter, sans-serif" font-weight="700" font-size="7.5" text-anchor="middle">CHAMPION</text>
-                            </svg>
-                        </div>
-                        <span class="px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-bold uppercase tracking-wider mb-2">
-                            ZLATÝ POHÁR
-                        </span>
-                        <h3 class="font-display text-xl font-bold text-white">1. místo – Slovenská tour</h3>
-                        <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-                            Niké Summer Beach Tour • Vítězství v mužské kategorii
-                        </p>
-                    </div>
-                    <div class="w-full mt-4 rounded-xl overflow-hidden border border-cyanVolt/30 aspect-[16/9] bg-midnight">
-                        <img src="images/tym-slovensko.jpg" alt="1. místo Slovenská tour" class="w-full h-full object-cover">
-                    </div>
-                </div>
-
-                <!-- 4. FIVB Futures Brno -->
-                <div class="achievement-card glass-panel rounded-3xl p-6 flex flex-col items-center text-center justify-between hover:border-emeraldVolt/50 transition-all">
-                    <div class="flex flex-col items-center">
-                        <div class="w-24 h-24 flex items-center justify-center mb-3">
-                            <svg viewBox="0 0 120 130" class="w-20 h-20 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)]">
-                                <defs>
-                                    <linearGradient id="fivbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#06B6D4"/>
-                                        <stop offset="100%" stop-color="#10B981"/>
-                                    </linearGradient>
-                                </defs>
-                                <polygon points="60,12 96,30 96,74 60,104 24,74 24,30" fill="#0F172A" stroke="url(#fivbGrad)" stroke-width="3.5"/>
-                                <circle cx="60" cy="52" r="16" fill="none" stroke="#10B981" stroke-width="2.2"/>
-                                <rect x="30" y="106" width="60" height="14" rx="3" fill="#0F172A" stroke="#06B6D4" stroke-width="1.5"/>
-                                <text x="60" y="116" fill="#06B6D4" font-family="Inter, sans-serif" font-weight="700" font-size="7.5" text-anchor="middle">MAIN DRAW</text>
-                            </svg>
-                        </div>
-                        <span class="px-2.5 py-0.5 rounded-full bg-emeraldVolt/15 text-emeraldVolt text-[11px] font-bold uppercase tracking-wider mb-2">
-                            SVĚTOVÁ TOUR FIVB
-                        </span>
-                        <h3 class="font-display text-xl font-bold text-white">Hlavní soutěž – FIVB Futures Brno</h3>
-                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                            FIVB Beach Pro Tour Futures Brno • Postup z kvalifikace
-                        </p>
-                    </div>
-                    <div class="w-full mt-4 rounded-xl overflow-hidden border border-emeraldVolt/30 aspect-[16/9] bg-midnight">
-                        <img src="images/fivb-brno.jpg" alt="FIVB Futures Brno" class="w-full h-full object-cover">
-                    </div>
-                </div>
-
-                <!-- 5. MEVZA U20 Kypr -->
-                <div class="achievement-card glass-panel rounded-3xl p-6 flex flex-col items-center text-center justify-between hover:border-cyanVolt/50 transition-all">
-                    <div class="flex flex-col items-center">
-                        <div class="w-24 h-24 flex items-center justify-center mb-3">
-                            <svg viewBox="0 0 120 130" class="w-20 h-20 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)]">
-                                <defs>
-                                    <linearGradient id="silverGradMevza" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#F8FAFC"/>
-                                        <stop offset="50%" stop-color="#CBD5E1"/>
-                                        <stop offset="100%" stop-color="#64748B"/>
-                                    </linearGradient>
-                                </defs>
-                                <polygon points="34,6 54,6 64,54 46,54" fill="#0284C7"/>
-                                <polygon points="86,6 66,6 56,54 74,54" fill="#10B981"/>
-                                <circle cx="60" cy="54" r="6" fill="none" stroke="#CBD5E1" stroke-width="3"/>
-                                <circle cx="60" cy="86" r="34" fill="url(#silverGradMevza)" stroke="#F8FAFC" stroke-width="2"/>
-                                <text x="60" y="83" fill="#0F172A" font-family="Space Grotesk, sans-serif" font-weight="800" font-size="16" text-anchor="middle">2.</text>
-                                <text x="60" y="98" fill="#1E293B" font-family="Inter, sans-serif" font-weight="700" font-size="7.5" text-anchor="middle">MEVZA U20</text>
-                            </svg>
-                        </div>
-                        <span class="px-2.5 py-0.5 rounded-full bg-cyanVolt/15 text-cyanVolt text-[11px] font-bold uppercase tracking-wider mb-2">
-                            STŘÍBRNÁ MEDAILE • CEV / MEVZA
-                        </span>
-                        <h3 class="font-display text-xl font-bold text-white">2. místo – MEVZA Kypr</h3>
-                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                            Středoevropský šampionát juniorů do 20 let • Kypr
-                        </p>
-                    </div>
-                    <div class="w-full mt-4 rounded-xl overflow-hidden border border-cyanVolt/30 aspect-[16/9] bg-midnight">
-                        <img src="images/mevza-kypr.jpg" alt="2. místo MEVZA Kypr" class="w-full h-full object-cover object-[center_18%]">
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- ======================================================================= -->
-    <!-- 4. 3D SKAUTING & INTERAKTIVNÍ AVATAR                                    -->
-    <!-- ======================================================================= -->
-    <section id="skauting" class="fg-card-layer py-24 border-t border-white/10 bg-midnight/95">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-                <div>
-                    <div class="text-xs font-bold tracking-[0.25em] text-cyanVolt uppercase mb-2">HRÁČSKÁ ANALYTIKA & 3D MODEL</div>
-                    <h2 class="font-display text-4xl sm:text-6xl font-extrabold text-white uppercase tracking-tight">3D Skauting</h2>
-                </div>
-                <p class="text-xs sm:text-sm text-slate-400 max-w-md">
-                    Přepínej mezi reálnými záběry ze hry a interaktivním 3D modelem hráče.
-                </p>
-            </div>
-
-            <div class="grid lg:grid-cols-12 gap-8 items-stretch">
-                
-                <!-- Left: Match Action Photo Viewer -->
-                <div class="lg:col-span-7 glass-panel-cyan rounded-3xl p-6 sm:p-8 flex flex-col justify-between">
-                    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                        <span class="px-3 py-1 rounded-lg bg-midnight/85 border border-cyanVolt/30 text-[11px] font-bold text-cyanVolt tracking-wider">
-                            MATCH ACTION VIEWER
-                        </span>
-                        <div class="flex flex-wrap gap-1.5">
-                            <button onclick="selectAction(0)" id="tab-0" class="action-tab px-3 py-1.5 rounded-lg text-xs font-bold bg-cyanVolt text-midnight transition-colors">Obrana v poli</button>
-                            <button onclick="selectAction(1)" id="tab-1" class="action-tab px-3 py-1.5 rounded-lg text-xs font-bold bg-midnight/80 text-slate-300 hover:text-white transition-colors">Signál & Příjem</button>
-                            <button onclick="selectAction(2)" id="tab-2" class="action-tab px-3 py-1.5 rounded-lg text-xs font-bold bg-midnight/80 text-slate-300 hover:text-white transition-colors">Útok & Smeč</button>
-                            <button onclick="selectAction(3)" id="tab-3" class="action-tab px-3 py-1.5 rounded-lg text-xs font-bold bg-midnight/80 text-slate-300 hover:text-white transition-colors">Profil</button>
-                        </div>
-                    </div>
-
-                    <div class="relative rounded-2xl overflow-hidden border border-white/15 bg-midnight aspect-[4/3] shadow-2xl">
-                        <img id="scouting-photo" src="images/akce-rybicka.jpg" alt="David Vyoral v akci" class="w-full h-full object-cover transition-opacity duration-200">
-                        <div class="absolute bottom-3 left-3 bg-midnight/85 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white/15">
-                            <div id="scouting-title" class="text-xs sm:text-sm font-bold text-white">Obrana v poli • Zákrok v písku</div>
-                            <div id="scouting-sub" class="text-[11px] text-cyanVolt">Čtení útoku soupeře za blokem</div>
-                        </div>
-                    </div>
-
-                    <div class="grid sm:grid-cols-2 gap-4 mt-6">
-                        <div class="bg-midnight/70 rounded-xl p-3.5 border border-white/10">
-                            <div class="flex justify-between text-xs font-bold mb-1.5">
-                                <span class="text-slate-300">Obrana v poli & Čtení hry</span>
-                                <span class="text-cyanVolt">94 / 100</span>
-                            </div>
-                            <div class="h-2 rounded-full bg-white/10 overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-cyanVolt to-emeraldVolt w-[94%]"></div>
-                            </div>
-                        </div>
-                        <div class="bg-midnight/70 rounded-xl p-3.5 border border-white/10">
-                            <div class="flex justify-between text-xs font-bold mb-1.5">
-                                <span class="text-slate-300">Příjem podání & Nahrávka</span>
-                                <span class="text-emeraldVolt">91 / 100</span>
-                            </div>
-                            <div class="h-2 rounded-full bg-white/10 overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-cyanVolt to-emeraldVolt w-[91%]"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right: 3D Player Avatar Model -->
-                <div class="lg:col-span-5 glass-panel rounded-3xl p-6 sm:p-8 flex flex-col justify-between border border-emeraldVolt/25">
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold tracking-[0.2em] text-emeraldVolt uppercase">3D ATHLETE AVATAR</span>
-                            <span class="px-2.5 py-0.5 rounded-full bg-emeraldVolt/15 text-emeraldVolt text-[10px] font-bold">INTERAKTIVNÍ</span>
-                        </div>
-                        <h3 class="font-display text-2xl font-bold text-white">Fyzický profil hráče</h3>
-                        <p class="text-xs text-slate-400 mt-1">Otáčej modelem myší nebo prstem • 185 cm • Pravák</p>
-                    </div>
-
-                    <div class="my-4 rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-deepOcean to-midnight h-80 sm:h-96 relative">
-                        <model-viewer src="avatar.glb" alt="3D Avatar David Vyoral" auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 100%; background-color: transparent;"></model-viewer>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 text-xs">
-                        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
-                            <span class="text-slate-400 block">Specializace</span>
-                            <span class="font-bold text-white">Defender (Polař)</span>
-                        </div>
-                        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
-                            <span class="text-slate-400 block">Klub</span>
-                            <span class="font-bold text-cyanVolt">Prague Beach Team</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- ======================================================================= -->
-    <!-- 5. PLÁN SEZÓNY 2027                                                     -->
-    <!-- ======================================================================= -->
-    <section id="sezona-2027" class="fg-card-layer py-20 border-t border-white/10 bg-midnight/90">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="mb-12">
-                <div class="text-xs font-bold tracking-[0.25em] text-cyanVolt uppercase mb-2">ROADMAPA & TURNAJOVÝ KALENDÁŘ</div>
-                <h2 class="font-display text-4xl sm:text-6xl font-extrabold text-white uppercase tracking-tight">Sezóna 2027</h2>
-            </div>
-
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <div class="glass-panel rounded-2xl p-6 border-t-2 border-t-cyanVolt">
-                    <div class="text-xs font-bold text-cyanVolt uppercase">ÚNOR 2027</div>
-                    <h3 class="font-display text-lg font-bold text-white mt-1">HMČR Mužů</h3>
-                    <p class="text-xs text-slate-300 mt-2 leading-relaxed">Halové mistrovství České republiky jako ostrý start nové sezóny.</p>
-                </div>
-                <div class="glass-panel rounded-2xl p-6 border-t-2 border-t-emeraldVolt">
-                    <div class="text-xs font-bold text-emeraldVolt uppercase">DUBEN 2027</div>
-                    <h3 class="font-display text-lg font-bold text-white mt-1">10denní kemp v Itálii</h3>
-                    <p class="text-xs text-slate-300 mt-2 leading-relaxed">Intenzivní herní příprava na venkovním písku před hlavním okruhem.</p>
-                </div>
-                <div class="glass-panel rounded-2xl p-6 border-t-2 border-t-cyanVolt">
-                    <div class="text-xs font-bold text-cyanVolt uppercase">LÉTO 2027</div>
-                    <h3 class="font-display text-lg font-bold text-white mt-1">MČR U22 & ME U22</h3>
-                    <p class="text-xs text-slate-300 mt-2 leading-relaxed">Boj o titul na MČR U22 a kvalifikace na Mistrovství Evropy do 22 let.</p>
-                </div>
-                <div class="glass-panel rounded-2xl p-6 border-t-2 border-t-emeraldVolt">
-                    <div class="text-xs font-bold text-emeraldVolt uppercase">MEZINÁRODNÍ OKRUH</div>
-                    <h3 class="font-display text-lg font-bold text-white mt-1">FIVB Futures & MEVZA</h3>
-                    <p class="text-xs text-slate-300 mt-2 leading-relaxed">Starty na FIVB World Tour Futures/Challenge, MEVZA a MČR mužů.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ======================================================================= -->
-    <!-- 6. PARTNERSTVÍ & KONTAKT                                                -->
-    <!-- ======================================================================= -->
-    <section id="partnerstvi" class="fg-card-layer py-24 border-t border-white/10 bg-midnight">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div class="inline-block px-3.5 py-1 rounded-full bg-emeraldVolt/15 text-emeraldVolt text-xs font-bold uppercase tracking-widest mb-4">
-                SPONZORING & SPOLUPRÁCE
-            </div>
-            <h2 class="font-display text-4xl sm:text-6xl font-extrabold text-white leading-tight uppercase">
-                Staňte se součástí cesty na světový okruh
-            </h2>
-            <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mt-5 leading-relaxed">
-                Viditelnost značky na dresech, turnajích v ČR i zahraničí a autentický video obsah na Instagramu a TikToku (<span id="mediakit-ig-val" class="text-cyanVolt font-bold">36.5K</span> zhlédnutí Reels měsíčně).
-            </p>
-
-            <div class="grid sm:grid-cols-3 gap-4 mt-10 text-left">
-                <a href="mailto:david.vyoral@icloud.com?subject=Spolupráce%20-%20David%20Vyoral" class="glass-panel-cyan rounded-2xl p-5 hover:scale-[1.02] transition-transform block">
-                    <div class="text-cyanVolt mb-2"><i data-lucide="mail" class="w-5 h-5"></i></div>
-                    <div class="text-xs text-slate-400">E-mail</div>
-                    <div class="text-sm font-bold text-white mt-0.5">david.vyoral@icloud.com</div>
-                </a>
-                <a href="https://instagram.com/d.vyoral" target="_blank" rel="noopener noreferrer" class="glass-panel rounded-2xl p-5 hover:border-emeraldVolt/50 transition-all block">
-                    <div class="flex items-center justify-between text-emeraldVolt mb-2">
-                        <i data-lucide="instagram" class="w-5 h-5"></i>
-                        <span id="ig-card-badge" class="text-xs font-bold text-cyanVolt">36.5K</span>
-                    </div>
-                    <div class="text-xs text-slate-400">Instagram</div>
-                    <div class="text-sm font-bold text-white mt-0.5">@d.vyoral</div>
-                </a>
-                <div class="glass-panel rounded-2xl p-5">
-                    <div class="text-cyanVolt mb-2"><i data-lucide="map-pin" class="w-5 h-5"></i></div>
-                    <div class="text-xs text-slate-400">Domovská základna</div>
-                    <div class="text-sm font-bold text-white mt-0.5">Praha • Prague Beach Team</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="fg-card-layer border-t border-white/10 py-8 text-center text-xs text-slate-500 bg-midnight">
-        © 2026 David Vyoral • Beach Volleyball Athlete Portfolio
-    </footer>
-
-    <script>
-        lucide.createIcons();
-
-        // =====================================================================
-        // 1. AUTHENTIC 3D MIKASA BV550C BEACH PRO VOLLEYBALL + KINETIC GSAP
-        // =====================================================================
-        (function initMikasa3D() {
-            const container = document.getElementById('webgl-container');
-            const scene = new THREE.Scene();
-
-            const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
-            camera.position.set(0, 0, 7.6);
-
-            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            container.appendChild(renderer.domElement);
-
-            // Studio & Beach Sun Lighting
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
-            scene.add(ambientLight);
-
-            const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.45);
-            sunLight.position.set(5, 6, 7);
-            scene.add(sunLight);
-
-            const cyanRim = new THREE.PointLight(0x06b6d4, 2.0, 22);
-            cyanRim.position.set(-6, -3, 5);
-            scene.add(cyanRim);
-
-            const fillLight = new THREE.DirectionalLight(0xbae6fd, 0.55);
-            fillLight.position.set(-4, 4, 3);
-            scene.add(fillLight);
-
-            // Authentic Mikasa BV550C Beach Pro Texture (White / Yellow / Royal Blue + Typography + Dimples)
+new_texture_func = """            // Photorealistic Mikasa BV550C Beach Pro Texture (Exact 10-panel curved design, colors, seams & micro-dimples)
             function createMikasaBV550CTexture() {
                 const canvas = document.createElement('canvas');
                 canvas.width = 2048;
                 canvas.height = 1024;
                 const ctx = canvas.getContext('2d');
 
-                // Base pure white leather
-                ctx.fillStyle = '#F8FAFC';
+                // 1. Base warm pearl-white synthetic leather
+                const whiteGrad = ctx.createLinearGradient(0, 0, 0, 1024);
+                whiteGrad.addColorStop(0, '#F1F5F9');
+                whiteGrad.addColorStop(0.5, '#FFFFFF');
+                whiteGrad.addColorStop(1, '#E2E8F0');
+                ctx.fillStyle = whiteGrad;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // Draw the iconic 10-panel curved Mikasa BV550C tri-color pattern across 2 repeated wraps
+                // Helper for curved Mikasa BV550C panels with subtle 3D shading
+                function drawCurvedBand(x0, yTopLeft, yTopMid, yTopRight, yBotLeft, yBotMid, yBotRight, colorTop, colorMid, colorBot) {
+                    const grad = ctx.createLinearGradient(x0, Math.min(yTopLeft, yTopMid), x0, Math.max(yBotLeft, yBotMid));
+                    grad.addColorStop(0, colorTop);
+                    grad.addColorStop(0.5, colorMid);
+                    grad.addColorStop(1, colorBot);
+                    ctx.fillStyle = grad;
+
+                    ctx.beginPath();
+                    ctx.moveTo(x0, yTopLeft);
+                    ctx.bezierCurveTo(x0 + 340, yTopMid, x0 + 684, yTopMid, x0 + 1024, yTopRight);
+                    ctx.lineTo(x0 + 1024, yBotRight);
+                    ctx.bezierCurveTo(x0 + 684, yBotMid, x0 + 340, yBotMid, x0, yBotLeft);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Recessed stitched groove border
+                    ctx.strokeStyle = 'rgba(15, 23, 42, 0.55)';
+                    ctx.lineWidth = 6;
+                    ctx.stroke();
+
+                    // Inner light edge highlight next to groove
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                // Draw both front and back hemispheres (0..1024 and 1024..2048)
                 for (let side = 0; side < 2; side++) {
                     const ox = side * 1024;
 
-                    // Top Royal Blue Sweeping Panel
-                    ctx.fillStyle = '#0047AB';
-                    ctx.beginPath();
-                    ctx.moveTo(ox + 0, 140);
-                    ctx.bezierCurveTo(ox + 280, 40, ox + 740, 40, ox + 1024, 140);
-                    ctx.lineTo(ox + 1024, 275);
-                    ctx.bezierCurveTo(ox + 740, 175, ox + 280, 175, ox + 0, 275);
-                    ctx.closePath();
-                    ctx.fill();
+                    // Top Royal Blue Sweeping Panel (Mikasa BV550C signature blue)
+                    drawCurvedBand(
+                        ox,
+                        190, 65, 190,
+                        315, 200, 315,
+                        '#003893', '#0052CC', '#003893'
+                    );
 
-                    // Center Vibrant Mikasa Yellow Band
-                    ctx.fillStyle = '#FFD400';
-                    ctx.beginPath();
-                    ctx.moveTo(ox + 0, 395);
-                    ctx.bezierCurveTo(ox + 340, 335, ox + 680, 335, ox + 1024, 395);
-                    ctx.lineTo(ox + 1024, 625);
-                    ctx.bezierCurveTo(ox + 680, 685, ox + 340, 685, ox + 0, 625);
-                    ctx.closePath();
-                    ctx.fill();
+                    // Center Golden-Yellow Band (wider in middle for MIKASA logo)
+                    drawCurvedBand(
+                        ox,
+                        430, 365, 430,
+                        595, 660, 595,
+                        '#F59E0B', '#FFD600', '#F59E0B'
+                    );
 
                     // Bottom Royal Blue Sweeping Panel
-                    ctx.fillStyle = '#0047AB';
-                    ctx.beginPath();
-                    ctx.moveTo(ox + 0, 745);
-                    ctx.bezierCurveTo(ox + 280, 845, ox + 740, 845, ox + 1024, 745);
-                    ctx.lineTo(ox + 1024, 880);
-                    ctx.bezierCurveTo(ox + 740, 980, ox + 280, 980, ox + 0, 880);
-                    ctx.closePath();
-                    ctx.fill();
+                    drawCurvedBand(
+                        ox,
+                        710, 825, 710,
+                        835, 960, 835,
+                        '#003893', '#0052CC', '#003893'
+                    );
 
-                    // Deep Panel Seam Grooves
-                    ctx.strokeStyle = '#1E293B';
+                    // Diagonal interlocking panel seams on left & right sides (characteristic 10-panel BV550C cut)
+                    ctx.strokeStyle = 'rgba(15, 23, 42, 0.5)';
                     ctx.lineWidth = 5;
-                    const curves = [140, 275, 395, 625, 745, 880];
-                    curves.forEach((y, idx) => {
+
+                    // Left & Right S-curve panel dividers
+                    [210, 814].forEach((sx, idx) => {
+                        const dir = idx === 0 ? -1 : 1;
                         ctx.beginPath();
-                        ctx.moveTo(ox + 0, y);
-                        const bend = idx < 2 ? -100 : (idx === 2 ? -60 : (idx === 3 ? 60 : 100));
-                        ctx.bezierCurveTo(ox + 320, y + bend, ox + 700, y + bend, ox + 1024, y);
+                        ctx.moveTo(ox + sx, 110);
+                        ctx.bezierCurveTo(ox + sx + dir * 75, 350, ox + sx - dir * 75, 670, ox + sx, 914);
                         ctx.stroke();
                     });
 
-                    // Vertical Panel Seams
-                    [260, 764].forEach(vx => {
-                        ctx.beginPath();
-                        ctx.moveTo(ox + vx, 100);
-                        ctx.quadraticCurveTo(ox + vx + (vx < 512 ? -40 : 40), 512, ox + vx, 924);
-                        ctx.stroke();
-                    });
+                    // Center-top & center-bottom vertical seams
+                    ctx.beginPath();
+                    ctx.moveTo(ox + 512, 0);
+                    ctx.lineTo(ox + 512, 235);
+                    ctx.moveTo(ox + 512, 790);
+                    ctx.lineTo(ox + 512, 1024);
+                    ctx.stroke();
 
-                    // Authentic Branding Typography on Center Face
+                    // Authentic Typography & Official Markings on Front & Back
                     const cx = ox + 512;
 
-                    // "BEACH PRO" arched above Mikasa
+                    // Arched "BEACH PRO" on upper white panel
                     ctx.save();
                     ctx.fillStyle = '#0F172A';
-                    ctx.font = '900 44px "Space Grotesk", sans-serif';
+                    ctx.font = '900 42px "Space Grotesk", sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText('BEACH PRO', cx, 322);
+                    const beachProChars = 'BEACH PRO'.split('');
+                    const radius = 340;
+                    beachProChars.forEach((ch, i) => {
+                        const angle = -0.34 + i * 0.085;
+                        ctx.save();
+                        ctx.translate(cx + Math.sin(angle) * radius, 620 - Math.cos(angle) * radius);
+                        ctx.rotate(angle);
+                        ctx.fillText(ch, 0, 0);
+                        ctx.restore();
+                    });
                     ctx.restore();
 
-                    // "MIKASA" bold royal blue wordmark on the yellow band
+                    // Iconic Royal Blue "MIKASA" with star above 'i' on yellow band
                     ctx.save();
-                    ctx.fillStyle = '#003B95';
-                    ctx.font = '900 108px "Space Grotesk", sans-serif';
+                    ctx.fillStyle = '#003893';
+                    ctx.font = '900 116px "Space Grotesk", sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText('MIKASA', cx, 548);
+                    ctx.fillText('MIKASA', cx, 554);
+
+                    // Little star dot above the 'I'
+                    ctx.beginPath();
+                    ctx.arc(cx - 102, 456, 7, 0, Math.PI * 2);
+                    ctx.fill();
                     ctx.restore();
 
-                    // "FIVB" & "OFFICIAL GAME BALL" on lower white panel
+                    // "FIVB" + underline + "OFFICIAL GAME BALL" on lower white panel
                     ctx.save();
                     ctx.fillStyle = '#0F172A';
                     ctx.font = '900 54px "Space Grotesk", sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText('FIVB', cx, 712);
+                    ctx.fillText('FIVB', cx, 718);
 
-                    ctx.fillStyle = '#334155';
-                    ctx.font = '700 18px "Inter", sans-serif';
-                    ctx.fillText('OFFICIAL GAME BALL', cx, 742);
+                    ctx.fillStyle = '#0052CC';
+                    ctx.fillRect(cx - 72, 728, 144, 4);
+
+                    ctx.fillStyle = '#1E293B';
+                    ctx.font = '800 17px "Inter", sans-serif';
+                    ctx.fillText('OFFICIAL GAME BALL', cx, 752);
                     ctx.restore();
                 }
 
-                // Characteristic Mikasa BV550C Dimpled Surface Texture (micro-craters)
-                for (let i = 0; i < 16000; i++) {
+                // 2. Authentic Mikasa Dimpled Micro-Texture (24,000 tactile dimples across surface)
+                for (let i = 0; i < 24000; i++) {
                     const dx = Math.random() * canvas.width;
                     const dy = Math.random() * canvas.height;
-                    ctx.fillStyle = 'rgba(15, 23, 42, 0.11)';
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.13)';
                     ctx.beginPath();
-                    ctx.arc(dx, dy, 2.1, 0, Math.PI * 2);
+                    ctx.arc(dx, dy, 2.2, 0, Math.PI * 2);
                     ctx.fill();
                 }
 
@@ -775,198 +159,10 @@ html_content = """<!DOCTYPE html>
                 return tex;
             }
 
-            const mikasaTex = createMikasaBV550CTexture();
-            const ballGeo = new THREE.SphereGeometry(1.55, 72, 72);
-            const ballMat = new THREE.MeshStandardMaterial({
-                map: mikasaTex,
-                bumpMap: mikasaTex,
-                bumpScale: 0.022,
-                roughness: 0.45,
-                metalness: 0.05
-            });
-
-            const ballGroup = new THREE.Group();
-            const ballMesh = new THREE.Mesh(ballGeo, ballMat);
-            // Orient so "MIKASA BEACH PRO FIVB" faces camera cleanly on load
-            ballMesh.rotation.y = -Math.PI / 2;
-            ballGroup.add(ballMesh);
-
-            const isMobile = window.innerWidth < 768;
-            ballGroup.position.set(0, isMobile ? 0.15 : 0.05, isMobile ? -0.4 : 0.3);
-            ballGroup.rotation.set(0.08, 0.12, -0.08);
-            scene.add(ballGroup);
-
-            // Subtle floating sand grains
-            const pCount = 150;
-            const pGeo = new THREE.BufferGeometry();
-            const pPos = new Float32Array(pCount * 3);
-            for (let i = 0; i < pCount * 3; i += 3) {
-                pPos[i] = (Math.random() - 0.5) * 16;
-                pPos[i + 1] = (Math.random() - 0.5) * 14;
-                pPos[i + 2] = (Math.random() - 0.5) * 8;
-            }
-            pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-            const pMat = new THREE.PointsMaterial({ color: 0xfde047, size: 0.038, transparent: true, opacity: 0.45 });
-            const particles = new THREE.Points(pGeo, pMat);
-            scene.add(particles);
-
-            // GSAP ScrollTrigger Kinetic Typography & 3D Ball Choreography
-            gsap.registerPlugin(ScrollTrigger);
-
-            // Hero entrance
-            gsap.from('.hero-stagger', {
-                y: 45,
-                opacity: 0,
-                duration: 0.95,
-                stagger: 0.14,
-                ease: 'power3.out'
-            });
-
-            // Horizontal marquee text movement on scroll
-            gsap.to('#marquee-top', {
-                xPercent: -28,
-                ease: 'none',
-                scrollTrigger: {
-                    trigger: '#kinetic-journey',
-                    start: 'top bottom',
-                    end: 'bottom top',
-                    scrub: 1
-                }
-            });
-            gsap.to('#marquee-bottom', {
-                xPercent: 25,
-                ease: 'none',
-                scrollTrigger: {
-                    trigger: '#kinetic-journey',
-                    start: 'top bottom',
-                    end: 'bottom top',
-                    scrub: 1
-                }
-            });
-
-            // Pinned Kinetic Slides Timeline (texts fly in/out around the rotating Mikasa)
-            const kineticTl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: '#kinetic-journey',
-                    start: 'top top',
-                    end: 'bottom bottom',
-                    scrub: 1
-                }
-            });
-
-            // Slide 1 enters, ball shifts slightly right & spins
-            kineticTl
-                .to(ballGroup.position, { x: isMobile ? 0 : 2.1, y: 0.2, z: 0.9, duration: 0.8 }, 0)
-                .to(ballGroup.rotation, { y: Math.PI * 1.8, x: 0.35, duration: 1.5 }, 0)
-                .fromTo('#k-slide-1', { opacity: 0, y: 90, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.7 }, 0.1)
-                .to('#k-slide-1', { opacity: 0, y: -90, scale: 1.06, duration: 0.6 }, 1.1)
-
-                // Slide 2 enters, ball sweeps to left & spins
-                .to(ballGroup.position, { x: isMobile ? 0 : -2.1, y: -0.1, z: 1.1, duration: 1 }, 1.2)
-                .to(ballGroup.rotation, { y: Math.PI * 3.8, x: -0.3, duration: 1.6 }, 1.2)
-                .fromTo('#k-slide-2', { opacity: 0, x: 110, scale: 0.92 }, { opacity: 1, x: 0, scale: 1, duration: 0.7 }, 1.4)
-                .to('#k-slide-2', { opacity: 0, x: -110, scale: 1.05, duration: 0.6 }, 2.4)
-
-                // Slide 3 enters, ball centers & zooms slightly
-                .to(ballGroup.position, { x: 0, y: 0.3, z: 0.6, duration: 1 }, 2.5)
-                .to(ballGroup.rotation, { y: Math.PI * 6, x: 0.15, duration: 1.6 }, 2.5)
-                .fromTo('#k-slide-3', { opacity: 0, y: 90, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.7 }, 2.7)
-                .to('#k-slide-3', { opacity: 0, y: -80, duration: 0.5 }, 3.7)
-
-                // Fade ball smoothly into background when entering cards section
-                .to(ballGroup.position, { x: 0, y: 0, z: -4.5, duration: 0.8 }, 3.8);
-
-            // Mouse parallax + continuous gentle spin
-            let mouseX = 0, mouseY = 0;
-            window.addEventListener('mousemove', (e) => {
-                mouseX = (e.clientX / window.innerWidth - 0.5) * 0.5;
-                mouseY = (e.clientY / window.innerHeight - 0.5) * 0.5;
-            });
-
-            const clock = new THREE.Clock();
-            function animate() {
-                requestAnimationFrame(animate);
-                const t = clock.getElapsedTime();
-
-                ballMesh.rotation.y += 0.0045;
-                ballGroup.position.y += Math.sin(t * 1.4) * 0.0012;
-                particles.rotation.y = t * 0.025;
-
-                camera.position.x += (mouseX - camera.position.x) * 0.05;
-                camera.position.y += (-mouseY - camera.position.y) * 0.05;
-                camera.lookAt(0, 0, 0);
-
-                renderer.render(scene, camera);
-            }
-            animate();
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-        })();
-
-        // =====================================================================
-        // 2. ACTION PHOTO SWITCHER
-        // =====================================================================
-        const actionSlides = [
-            { src: 'images/akce-rybicka.jpg', title: 'Obrana v poli • Zákrok v písku', sub: 'Čtení útoku soupeře za blokem' },
-            { src: 'images/akce-signal.jpg', title: 'Taktický signál & Příjem podání', sub: 'Komunikace a organizace side-outu' },
-            { src: 'images/akce-smec.jpg', title: 'Útok z mezihry & Smeč', sub: 'Rychlý přechod z obrany do zakončení' },
-            { src: 'images/hero-dres.jpg', title: 'Reprezentační & klubový dres', sub: 'Prague Beach Team • Sezóna 2026/2027' }
-        ];
-
-        function selectAction(idx) {
-            const slide = actionSlides[idx];
-            const img = document.getElementById('scouting-photo');
-            img.style.opacity = '0.3';
-            setTimeout(() => {
-                img.src = slide.src;
-                document.getElementById('scouting-title').textContent = slide.title;
-                document.getElementById('scouting-sub').textContent = slide.sub;
-                img.style.opacity = '1';
-            }, 140);
-
-            document.querySelectorAll('.action-tab').forEach((btn, i) => {
-                btn.className = i === idx
-                    ? 'action-tab px-3 py-1.5 rounded-lg text-xs font-bold bg-cyanVolt text-midnight transition-colors'
-                    : 'action-tab px-3 py-1.5 rounded-lg text-xs font-bold bg-midnight/80 text-slate-300 hover:text-white transition-colors';
-            });
-        }
-
-        // =====================================================================
-        // 3. LIVE INSTAGRAM VIEWS SYNC (stats.json)
-        // =====================================================================
-        async function loadInstagramStats(isManualClick = false) {
-            const icon = document.getElementById('sync-icon');
-            const valEl = document.getElementById('ig-followers-val');
-            const cardBadge = document.getElementById('ig-card-badge');
-            const modalVal = document.getElementById('mediakit-ig-val');
-
-            if (isManualClick && icon) icon.classList.add('animate-spin');
-
-            try {
-                const res = await fetch(`stats.json?t=${Date.now()}`);
-                if (!res.ok) throw new Error('stats.json nedostupný');
-                const data = await res.json();
-                const displayViews = data.views || data.followers_formatted || data.followers || '36.5K';
-                if (valEl) valEl.textContent = displayViews;
-                if (cardBadge) cardBadge.textContent = displayViews;
-                if (modalVal) modalVal.textContent = displayViews;
-            } catch (err) {
-                // fallback 36.5K
-            } finally {
-                if (icon) setTimeout(() => icon.classList.remove('animate-spin'), 400);
-            }
-        }
-        loadInstagramStats(false);
-    </script>
-</body>
-</html>
 """
 
+updated_html = old_html[:old_func_start] + new_texture_func + old_html[old_func_end:]
 with open("preview.html", "w", encoding="utf-8") as f:
-    f.write(html_content)
+    f.write(updated_html)
 
-print("preview.html generated successfully")
+print("Updated preview.html with photorealistic Mikasa BV550C texture")
