@@ -196,7 +196,7 @@
                                     <span>@d.vyoral • Živý IG dosah</span>
                                 </div>
                                 <div class="font-display text-xl sm:text-2xl font-bold text-white mt-0.5">
-                                    <span id="ig-followers-val">27.8K</span> <span class="text-xs sm:text-sm font-sans font-normal text-slate-400">sledujících & dosah / měs.</span>
+                                    <span id="ig-Zhlédnutí Reels-val">27.8K</span> <span class="text-xs sm:text-sm font-sans font-normal text-slate-400">Zhlédnutí Reels & dosah / měs.</span>
                                 </div>
                                 <div id="ig-sync-timestamp" class="text-[11px] text-emeraldVolt mt-0.5">
                                     Synchronizováno: Dnes • Ověřený profil
@@ -954,7 +954,7 @@
         async function loadInstagramStats(isManualClick = false) {
             const icon = document.getElementById('sync-icon');
             const ts = document.getElementById('ig-sync-timestamp');
-            const valEl = document.getElementById('ig-followers-val');
+            const valEl = document.getElementById('ig-Zhlédnutí Reels-val');
             const cardBadge = document.getElementById('ig-card-badge');
             const modalVal = document.getElementById('mediakit-ig-val');
 
@@ -968,10 +968,10 @@
                 if (!res.ok) throw new Error('stats.json nedostupný');
                 const data = await res.json();
 
-                const displayFollowers = data.followers_formatted || data.followers || '27.8K';
-                if (valEl) valEl.textContent = displayFollowers;
-                if (cardBadge) cardBadge.textContent = displayFollowers;
-                if (modalVal) modalVal.textContent = displayFollowers;
+                const displayZhlédnutí Reels = (data.views || data.Zhlédnutí Reels)_formatted || (data.views || data.Zhlédnutí Reels) || '27.8K';
+                if (valEl) valEl.textContent = displayZhlédnutí Reels;
+                if (cardBadge) cardBadge.textContent = displayZhlédnutí Reels;
+                if (modalVal) modalVal.textContent = displayZhlédnutí Reels;
 
                 const updatedText = data.last_updated ? `Aktualizováno: ${data.last_updated}` : 'Synchronizováno • @d.vyoral';
                 if (ts) ts.textContent = `${updatedText} • Ověřený profil`;
