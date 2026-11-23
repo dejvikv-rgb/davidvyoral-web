@@ -196,7 +196,7 @@
                                     <span>@d.vyoral • Živý IG dosah</span>
                                 </div>
                                 <div class="font-display text-xl sm:text-2xl font-bold text-white mt-0.5">
-                                    <span id="ig-Zhlédnutí Reels-val">27.8K</span> <span class="text-xs sm:text-sm font-sans font-normal text-slate-400">Zhlédnutí Reels & dosah / měs.</span>
+                                    <span id="ig-followers-val">36.5K</span> <span class="text-xs sm:text-sm font-sans font-normal text-slate-400">Zhlédnutí Reels & dosah / měs.</span>
                                 </div>
                                 <div id="ig-sync-timestamp" class="text-[11px] text-emeraldVolt mt-0.5">
                                     Synchronizováno: Dnes • Ověřený profil
@@ -850,7 +850,7 @@
                         <a href="https://instagram.com/d.vyoral" target="_blank" rel="noopener noreferrer" class="glass-panel hover:border-emeraldVolt/60 rounded-2xl p-4 transition-all block">
                             <div class="flex items-center justify-between text-emeraldVolt mb-2">
                                 <i data-lucide="instagram" class="w-5 h-5"></i>
-                                <span id="ig-card-badge" class="text-[10px] font-bold uppercase text-cyanVolt">27.8K</span>
+                                <span id="ig-card-badge" class="text-[10px] font-bold uppercase text-cyanVolt">36.5K</span>
                             </div>
                             <div class="text-xs text-slate-400">Instagram</div>
                             <div class="text-sm font-bold text-white mt-0.5">@d.vyoral</div>
@@ -904,7 +904,7 @@
             <ul class="space-y-2.5 text-sm text-slate-200">
                 <li class="flex items-start gap-2.5"><span class="text-emeraldVolt font-bold">✓</span> <span><strong>Profil:</strong> Polař (185 cm, pravák, ročník 2006), Prague Beach Team.</span></li>
                 <li class="flex items-start gap-2.5"><span class="text-emeraldVolt font-bold">✓</span> <span><strong>Úspěchy:</strong> Vicemistr ČR U22 & U20, 1. místo Slovenská tour, hlavní soutěž FIVB Futures Brno.</span></li>
-                <li class="flex items-start gap-2.5"><span class="text-emeraldVolt font-bold">✓</span> <span><strong>Dosah:</strong> <span id="mediakit-ig-val">27.8K</span> na IG (@d.vyoral) + klubový zásah Prague Beach Teamu.</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-emeraldVolt font-bold">✓</span> <span><strong>Dosah:</strong> <span id="mediakit-ig-val">36.5K</span> na IG (@d.vyoral) + klubový zásah Prague Beach Teamu.</span></li>
                 <li class="flex items-start gap-2.5"><span class="text-emeraldVolt font-bold">✓</span> <span><strong>Plnění:</strong> Logo na dresu a kraťasech, pravidelná turnajová a tréninková Reels, firemní beach workshop.</span></li>
             </ul>
             <div class="pt-3 flex flex-col sm:flex-row gap-3">
@@ -968,10 +968,10 @@
                 if (!res.ok) throw new Error('stats.json nedostupný');
                 const data = await res.json();
 
-                const displayZhlédnutí Reels = (data.views || data.Zhlédnutí Reels)_formatted || (data.views || data.Zhlédnutí Reels) || '27.8K';
-                if (valEl) valEl.textContent = displayZhlédnutí Reels;
-                if (cardBadge) cardBadge.textContent = displayZhlédnutí Reels;
-                if (modalVal) modalVal.textContent = displayZhlédnutí Reels;
+                const displayViews = data.views || data.followers_formatted || data.followers || '36.5K';
+                if (valEl) valEl.textContent = displayViews;
+                if (cardBadge) cardBadge.textContent = displayViews;
+                if (modalVal) modalVal.textContent = displayViews;
 
                 const updatedText = data.last_updated ? `Aktualizováno: ${data.last_updated}` : 'Synchronizováno • @d.vyoral';
                 if (ts) ts.textContent = `${updatedText} • Ověřený profil`;
@@ -1052,7 +1052,7 @@
             {
                 cx: 94, cy: 124,
                 badge: "MARKETING • 84 / 100",
-                sub: "27.8K • @d.vyoral",
+                sub: "36.5K • @d.vyoral",
                 title: "IG Dosah & Obsah",
                 desc: "Pravidelná tvorba autentických videí ze zápasů a tréninků na @d.vyoral s přirozeným zapojením partnerů.",
                 photo: "images/hero-dres.jpg",
