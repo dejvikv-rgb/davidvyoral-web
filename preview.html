@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>David Vyoral | Beach Volleyball Athlete & Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
@@ -125,8 +126,9 @@
     <!-- FIXED SKETCHFAB MIKASA BV550C MODEL -->
     <div id="mikasa-embed">
         <iframe
+            id="mikasa-frame"
             title="Mikasa BV550C 3D model"
-            src="https://sketchfab.com/models/afe2e567cf2d445a9beb382a84a6a313/embed?autospin=1&amp;autostart=1&amp;transparent=1&amp;ui_infos=0&amp;ui_controls=0&amp;ui_stop=0"
+            src="https://sketchfab.com/models/afe2e567cf2d445a9beb382a84a6a313/embed?autostart=1&amp;transparent=1&amp;ui_infos=0&amp;ui_controls=0&amp;ui_stop=0&amp;ui_hint=0&amp;ui_watermark=0&amp;scrollwheel=0"
             allow="autoplay; fullscreen; xr-spatial-tracking"
             allowfullscreen>
         </iframe>
@@ -642,6 +644,82 @@
 
     <script>
         lucide.createIcons();
+
+        const mikasaFrame = document.getElementById('mikasa-frame');
+        const mikasaClient = new Sketchfab('1.12.1', mikasaFrame);
+        const mikasaEmbedOptions = {
+            autostart: 1,
+            transparent: 1,
+            ui_infos: 0,
+            ui_controls: 0,
+            ui_stop: 0,
+            ui_hint: 0,
+            ui_watermark: 0,
+            scrollwheel: 0,
+            success(api) {
+                api.start();
+                api.addEventListener('viewerready', () => {
+                    api.getCameraLookAt((error, camera) => {
+                        if (error) {
+                            console.error('Unable to read Sketchfab camera position:', error);
+                            return;
+                        }
+
+                        const basePosition = camera.position;
+                        const target = camera.target;
+                        const dx = basePosition[0] - target[0];
+                        const dy = basePosition[1] - target[1];
+                        const dz = basePosition[2] - target[2];
+                        const radius = Math.hypot(dx, dy, dz);
+                        if (!Number.isFinite(radius) || radius === 0) {
+                            console.error('Sketchfab returned an invalid camera position.');
+                            return;
+                        }
+
+                        const baseAngle = Math.atan2(dx, dz) + Math.PI / 2;
+                        let mouseX = 0;
+                        let mouseY = 0;
+                        let updatePending = false;
+
+                        const updateCamera = () => {
+                            if (updatePending) return;
+                            updatePending = true;
+                            window.setTimeout(() => {
+                                updatePending = false;
+                                const scrollRange = document.documentElement.scrollHeight - window.innerHeight;
+                                const scrollProgress = scrollRange > 0 ? window.scrollY / scrollRange : 0;
+                                const angle = baseAngle + mouseX * 0.35 + scrollProgress * 0.75;
+                                const pitch = mouseY * 0.18;
+                                const horizontalRadius = radius * Math.cos(pitch);
+                                const position = [
+                                    target[0] + horizontalRadius * Math.sin(angle),
+                                    target[1] + dy + radius * Math.sin(pitch),
+                                    target[2] + horizontalRadius * Math.cos(angle)
+                                ];
+
+                                api.setCameraLookAt(position, target, 0.2, (cameraError) => {
+                                    if (cameraError) {
+                                        console.error('Unable to move Sketchfab camera:', cameraError);
+                                    }
+                                });
+                            }, 80);
+                        };
+
+                        window.addEventListener('mousemove', (event) => {
+                            mouseX = (event.clientX / window.innerWidth - 0.5) * 2;
+                            mouseY = (event.clientY / window.innerHeight - 0.5) * 2;
+                            updateCamera();
+                        }, { passive: true });
+                        window.addEventListener('scroll', updateCamera, { passive: true });
+                        updateCamera();
+                    });
+                });
+            },
+            error() {
+                console.error('Sketchfab Viewer API failed to initialize the Mikasa model.');
+            }
+        };
+        mikasaClient.init('afe2e567cf2d445a9beb382a84a6a313', mikasaEmbedOptions);
 
         gsap.registerPlugin(ScrollTrigger);
 
