@@ -53,13 +53,18 @@
             width: 100vw;
             height: 100vh;
             z-index: 15;
+            overflow: hidden;
+            border-radius: 50%;
             pointer-events: none;
         }
         #mikasa-embed iframe {
             display: block;
-            width: 100%;
-            height: 100%;
+            width: 135%;
+            height: 135%;
+            margin-left: -17.5%;
+            margin-top: -17.5%;
             border: 0;
+            pointer-events: none;
         }
         .bg-typo-layer {
             position: relative;
@@ -676,7 +681,10 @@
                             return;
                         }
 
-                        const baseAngle = Math.atan2(dx, dz) + Math.PI / 2;
+                        const baseAngle = Math.atan2(dx, dz);
+                        const angleOffset = Math.PI / 2;
+                        const cameraRadius = radius / 2;
+                        const baseElevation = Math.asin(Math.max(-1, Math.min(1, dy / radius)));
                         let mouseX = 0;
                         let mouseY = 0;
                         let updatePending = false;
@@ -688,12 +696,12 @@
                                 updatePending = false;
                                 const scrollRange = document.documentElement.scrollHeight - window.innerHeight;
                                 const scrollProgress = scrollRange > 0 ? window.scrollY / scrollRange : 0;
-                                const angle = baseAngle + mouseX * 0.35 + scrollProgress * 0.75;
-                                const pitch = mouseY * 0.18;
-                                const horizontalRadius = radius * Math.cos(pitch);
+                                const angle = baseAngle + angleOffset + mouseX * 0.35 + scrollProgress * 0.75;
+                                const elevation = Math.max(-1.2, Math.min(1.2, baseElevation + mouseY * 0.18));
+                                const horizontalRadius = cameraRadius * Math.cos(elevation);
                                 const position = [
                                     target[0] + horizontalRadius * Math.sin(angle),
-                                    target[1] + dy + radius * Math.sin(pitch),
+                                    target[1] + cameraRadius * Math.sin(elevation),
                                     target[2] + horizontalRadius * Math.cos(angle)
                                 ];
 
